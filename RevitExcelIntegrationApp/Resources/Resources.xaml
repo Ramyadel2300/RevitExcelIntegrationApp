@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/RevitExcelIntegrationApp;component/Resources/ButtonStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/RevitExcelIntegrationApp;component/Resources/TextBoxStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/RevitExcelIntegrationApp;component/Resources/LabelStyles.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>
