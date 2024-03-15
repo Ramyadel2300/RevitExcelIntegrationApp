@@ -1,0 +1,92 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/RevitExcelIntegrationApp;component/Resources/Brushes.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <ControlTemplate x:Key="ButtonTemplate"
+                     TargetType="{x:Type Button}">
+        <Grid SnapsToDevicePixels="True">
+            <Border x:Name="border"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    SnapsToDevicePixels="true"
+                    CornerRadius="5">
+                <ContentPresenter x:Name="contentPresenter"
+                                  Margin="{TemplateBinding Padding}"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                  Focusable="False"
+                                  RecognizesAccessKey="True"
+                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+            </Border>
+            <Border x:Name="FocusBorder" 
+                    BorderBrush="{DynamicResource ControlFocusBorder}"
+                    BorderThickness="1"
+                    Visibility="Collapsed"
+                    CornerRadius="5"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsDefaulted"
+                     Value="true">
+                <Setter Property="BorderBrush"
+                        TargetName="border"
+                        Value="{DynamicResource ResourceKey=PrimaryBorder}" />
+            </Trigger>
+            <Trigger Property="IsMouseOver"
+                     Value="true">
+                <Setter Property="Background"
+                        TargetName="border"
+                        Value="{DynamicResource ResourceKey=ControlMouseOverBackground}" />
+                <Setter Property="BorderBrush"
+                        TargetName="border"
+                        Value="{DynamicResource ResourceKey=ControlMouseOverBorder}" />
+            </Trigger>
+            <Trigger Property="IsPressed"
+                     Value="true">
+                <Setter Property="Background"
+                        TargetName="border"
+                        Value="{DynamicResource ResourceKey=ControlPressedBackground}" />
+                <Setter Property="BorderBrush"
+                        TargetName="border"
+                        Value="{DynamicResource ResourceKey=ControlPressedBorder}" />
+            </Trigger>
+            <Trigger Property="IsFocused"
+                     Value="true">
+                <Setter Property="Visibility"
+                        TargetName="FocusBorder"
+                        Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled"
+                     Value="false">
+                <Setter Property="Opacity"
+                        Value="0.5" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+    <Style x:Key="ButtonStyle"
+           TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle"
+                Value="{x:Null}" />
+        <Setter Property="Background"
+                Value="{StaticResource SecondaryBackground}" />
+        <Setter Property="BorderBrush"
+                Value="{StaticResource PrimaryBorder}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource PrimaryForeground}" />
+        <Setter Property="BorderThickness"
+                Value="1" />
+        <Setter Property="HorizontalContentAlignment"
+                Value="Center" />
+        <Setter Property="VerticalContentAlignment"
+                Value="Center" />
+        <Setter Property="Padding"
+                Value="2" />
+        <Setter Property="Template"
+                Value="{StaticResource ButtonTemplate}" />
+    </Style>
+    <Style BasedOn="{StaticResource ButtonStyle}"
+           TargetType="{x:Type Button}" />
+
+</ResourceDictionary>
