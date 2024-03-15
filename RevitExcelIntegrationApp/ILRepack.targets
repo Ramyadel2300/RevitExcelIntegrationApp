@@ -17,7 +17,6 @@
 		<InputAssemblies Include="$(OutputPath)\Microsoft.Extensions.Options.ConfigurationExtensions.dll" />
 		<InputAssemblies Include="$(OutputPath)\Microsoft.Extensions.Options.dll" />
 		<InputAssemblies Include="$(OutputPath)\Microsoft.Extensions.Primitives.dll" />
-		<InputAssemblies Include="$(OutputPath)\Microsoft.Office.Interop.Excel.dll" />
 		<!-- MigraDoc assemblies -->
 		<InputAssemblies Include="$(OutputPath)\MigraDoc.DocumentObjectModel.dll" />
 		<InputAssemblies Include="$(OutputPath)\MigraDoc.Rendering-gdi.dll" />

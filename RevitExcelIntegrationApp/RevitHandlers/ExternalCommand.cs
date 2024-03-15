@@ -2,10 +2,11 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
-namespace RevitExcelIntegrationApp
+namespace RevitExcelIntegrationApp.RevitHandlers
 {
-    [TransactionAttribute(TransactionMode.Manual)]
-    [RegenerationAttribute(RegenerationOption.Manual)]
+    [Transaction(TransactionMode.Manual)]
+    [Regeneration(RegenerationOption.Manual)]
+    [Journaling(JournalingMode.NoCommandData)]
     internal class ExternalCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)

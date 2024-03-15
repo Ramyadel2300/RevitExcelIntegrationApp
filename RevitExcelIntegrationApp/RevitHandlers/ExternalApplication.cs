@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Windows.Media.Imaging;
 using Autodesk.Revit.UI;
 
-namespace RevitExcelIntegrationApp
+namespace RevitExcelIntegrationApp.RevitHandlers
 {
     public class ExternalApplication : IExternalApplication
     {
@@ -18,7 +18,7 @@ namespace RevitExcelIntegrationApp
             application.CreateRibbonTab("ExcelIntegration");
             string path = Assembly.GetExecutingAssembly().Location;
             RibbonPanel MyPanel = application.CreateRibbonPanel("ExcelIntegration", "Export Files");
-            PushButtonData ActionButton = new PushButtonData("Button1", "R-Excel", path, "RevitExcelIntegrationApp.ExternalCommand");
+            PushButtonData ActionButton = new PushButtonData("Button1", "R-Excel", path, "RevitExcelIntegrationApp.RevitHandlers.ExternalCommand");
             //string outPutDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
             //string IconPath = Path.Combine(outPutDirectory, " Files\\new_bitmap_image_SWC_icon.ico");
             //ExporterButton.LargeImage = new BitmapImage(new Uri(IconPath));

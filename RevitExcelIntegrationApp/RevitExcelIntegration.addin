@@ -4,7 +4,7 @@
 		<Name>RevitExcelIntegration</Name>
 		<Assembly>RevitExcelIntegrationApp.dll</Assembly>
 		<AddInId>C9966D4F-E7E8-4E90-A8AD-EBD3BC9DA68A</AddInId>
-		<FullClassName>RevitExcelIntegrationApp.ExternalApplication</FullClassName>
+		<FullClassName>RevitExcelIntegrationApp.RevitHandlers.ExternalApplication</FullClassName>
 		<Text>Revit Excel Integration</Text>
 		<Description></Description>
 		<VisibitilyMode>NotVisibleWhenNoActiveDocument</VisibitilyMode>
