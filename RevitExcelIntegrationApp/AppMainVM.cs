@@ -1,7 +1,8 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using Microsoft.Win32;
 using RevitExcelIntegrationApp.Command;
-using System.ComponentModel;
+using RevitExcelIntegrationApp.Services;
 
 namespace RevitExcelIntegrationApp
 {
@@ -30,14 +31,19 @@ namespace RevitExcelIntegrationApp
 
         private void ExecuteAddPricesToRevitElements(object obj)
         {
-
+            if(SelectedFilePath is null)
+                return;
+            ExcelDataReader dataReader = new ExcelDataReader(SelectedFilePath);
+            ElementPricesInserter pricesInserter = new ElementPricesInserter(doc, dataReader);
+            pricesInserter.InsertPrices();
         }
 
         private void ExecuteLoadElementPriceFromExcel(object obj)
         {
-            
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "xlsx Excel File (*.xlsx)|*.xlsx|xls Excel File (*.xls)|*.xls|All files (*.*)|*.*";
+            dialog.ShowDialog();
+            SelectedFilePath = dialog.FileName;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
