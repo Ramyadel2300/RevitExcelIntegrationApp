@@ -12,7 +12,7 @@ namespace RevitExcelIntegrationApp
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
-             RevitExcelUI Window = new RevitExcelUI(uidoc, doc);
+            RevitExcelUI Window = new RevitExcelUI(uidoc, doc);
             Window.ShowDialog();
             return 0;
         }
