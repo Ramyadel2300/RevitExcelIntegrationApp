@@ -42,7 +42,6 @@
                             Height="20"
                             Margin="5"
                             Content="..."
-                            Click="Button_Click"
                             Command="{Binding LoadElementPriceFromExcelCommand}"/>
                 </StackPanel>
             </Grid>

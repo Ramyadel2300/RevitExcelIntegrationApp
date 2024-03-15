@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace RevitExcelIntegrationApp
+namespace RevitExcelIntegrationApp.Services
 {
     internal class SharedParameterProvider
     {
@@ -108,7 +108,7 @@ namespace RevitExcelIntegrationApp
         public static bool SetBinding(Document document, DefinitionGroup myGroup, string paraName, BuiltInCategory category, ForgeTypeId parTypeId)
         {
             Definition GetorCreateSharedParamDefinition = GetOrCreateSharedParamDefinition(myGroup, parTypeId, paraName, visible: true);//our method to retrieve the defintion
-                                                                                                                                       //if there is no parameter with the given data 
+                                                                                                                                        //if there is no parameter with the given data 
             if (GetorCreateSharedParamDefinition == null)
             {
                 return false;
@@ -117,9 +117,9 @@ namespace RevitExcelIntegrationApp
             Category ElementCategoty = document.Settings.Categories.get_Item(category);//get the element category in which we will set this Value into it  
                                                                                        //the next lines is ued to set the new Paramter value
             CategorySet CategorySet = document.Application.Create.NewCategorySet();
-            var isCategoryInserted= CategorySet.Insert(ElementCategoty);
+            var isCategoryInserted = CategorySet.Insert(ElementCategoty);
             InstanceBinding val = document.Application.Create.NewInstanceBinding(CategorySet);
-            var isBinded= document.ParameterBindings.Insert(GetorCreateSharedParamDefinition, (Binding)(object)val);
+            var isBinded = document.ParameterBindings.Insert(GetorCreateSharedParamDefinition, (Binding)(object)val);
             return isBinded;
         }
         //this method is consisdered to be the gate or the main method to triger the loading of the shared paramter file 
@@ -141,7 +141,7 @@ namespace RevitExcelIntegrationApp
             //i think the following Lines Invistigate if this Defintion/Paramter allready exsits in the element
 
             //DefinitionBindingMapIterator:An iterator to a parameter definition within parameters binding map.
-            DefinitionBindingMapIterator definitionBindingMapIterator = ((DefinitionBindingMap)document.ParameterBindings).ForwardIterator();
+            DefinitionBindingMapIterator definitionBindingMapIterator = document.ParameterBindings.ForwardIterator();
             while (definitionBindingMapIterator.MoveNext())
             {
                 Definition definition = definitionBindingMapIterator.Key;//Key:Retrieves the definition that is the current focus of the iterator.
@@ -163,7 +163,7 @@ namespace RevitExcelIntegrationApp
             //if not set the paramter 
             if (!flag)
             {
-                bool isBinded= SetBinding(document, definitionGroup, ParaName, builtCat, SpecTypeId.String.Text);
+                bool isBinded = SetBinding(document, definitionGroup, ParaName, builtCat, SpecTypeId.String.Text);
             }
         }
     }
