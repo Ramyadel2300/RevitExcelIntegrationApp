@@ -6,7 +6,6 @@
 	<ItemGroup>
 		<PackageReference Include="ILRepack" Version="2.0.18" />
 		<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.2" />
-		<PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
 		<PackageReference Include="PDFsharp-MigraDoc-GDI" Version="6.1.0-preview-1" />
 	</ItemGroup>
 	<ItemGroup>
@@ -30,7 +29,7 @@
 	<PropertyGroup>
 		<PostBuildEvent>
 			if exist "$(AppData)\Autodesk\Revit\Addins\2024" copy "$(ProjectDir)*.addin" "$(AppData)\Autodesk\Revit\Addins\2024"
-			if exist "$(AppData)\Autodesk\Revit\Addins\2024" copy "$(ProjectDir)$(OutputPath)ILRepack\*.dll" "$(AppData)\Autodesk\Revit\Addins\2024"
+			if exist "$(AppData)\Autodesk\Revit\Addins\2024" copy "$(ProjectDir)$(OutputPath)*.dll" "$(AppData)\Autodesk\Revit\Addins\2024"
 		</PostBuildEvent>
 	</PropertyGroup>
 
