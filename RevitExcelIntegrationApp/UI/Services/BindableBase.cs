@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace RevitExcelIntegrationApp
+namespace RevitExcelIntegrationApp.UI.Services
 {
     public class BindableBase : INotifyPropertyChanged
     {

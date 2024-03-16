@@ -13,18 +13,23 @@ namespace RevitExcelIntegrationApp.Services
             var structuralInstances = new FilteredElementCollector(document).WherePasses(elementFilters).WhereElementIsNotElementType().ToList();
             return structuralInstances;
         }
-        public static void LoadingSharedParamterFile(Document doc)
+        public static bool LoadingSharedParamterFile(Document doc, BuiltInCategory newCategory)
         {
-            using (SubTransaction t = new SubTransaction(doc))
+            string categoryGroupName = newCategory.ToString().Remove(0, 4) + "Cost Analysis Parameter";
+            TransactionStatus transactionStatus;
+            using (Transaction t = new Transaction(doc, $"Load Shared Parameter For {newCategory}"))
             {
                 t.Start();
                 var dllLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
                 var dllParentFolder = Directory.GetParent(dllLocation);
                 string sharedParamterFilePath = Path.Combine(dllParentFolder.FullName, "ELK Grove SharedParameters File.txt");
-                SharedParameterProvider.AddSharedParameters(doc, BuiltInCategory.OST_StructuralColumns, "Column Cost Analysis Parameter", sharedParamterFilePath, "Price");
-                SharedParameterProvider.AddSharedParameters(doc, BuiltInCategory.OST_StructuralFraming, "Framing Cost Analysis Parameter", sharedParamterFilePath, "Price");
-                t.Commit();
+                SharedParameterProvider.AddSharedParameters(doc, newCategory, categoryGroupName, sharedParamterFilePath, "Price");
+                transactionStatus = t.Commit();
             }
+            if (transactionStatus == TransactionStatus.Committed)
+                return true;
+            else
+                return false;
         }
     }
 }

@@ -37,7 +37,7 @@ namespace RevitExcelIntegrationApp.Services
             else conn = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + fileName + ";Extended Properties='Excel 12.0;HDR=NO';"; //for above excel 2007
             using (OleDbConnection con = new OleDbConnection(conn))
             {
-                OleDbDataAdapter oleAdpt = new OleDbDataAdapter("select * from [Sheet1$]", con); //here we read data from sheet1
+                OleDbDataAdapter oleAdpt = new OleDbDataAdapter("select * from [Prices$]", con); //here we read data from sheet1
                 oleAdpt.Fill(dtexcel); //fill excel data into dataTable
             }
             return dtexcel;

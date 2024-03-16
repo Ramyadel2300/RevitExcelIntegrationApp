@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.DB;
+using PdfSharp.Pdf;
 using System;
 using System.IO;
 
@@ -87,6 +88,7 @@ namespace RevitExcelIntegrationApp.Services
                     ExternalDefinitionCreationOptions NewlyCreatedParameter = new ExternalDefinitionCreationOptions(parName, parTypeId);
                     NewlyCreatedParameter.Visible = visible;
                     defGrp.Definitions.Create(NewlyCreatedParameter);//return the newly created paramter
+                    Parameter = defGrp.Definitions.get_Item(parName);
                 }
                 return Parameter;//return the existed parameter
             }
@@ -109,7 +111,7 @@ namespace RevitExcelIntegrationApp.Services
         {
             Definition GetorCreateSharedParamDefinition = GetOrCreateSharedParamDefinition(myGroup, parTypeId, paraName, visible: true);//our method to retrieve the defintion
                                                                                                                                         //if there is no parameter with the given data 
-            if (GetorCreateSharedParamDefinition == null)
+            if (GetorCreateSharedParamDefinition == null)//some how Revit needs to execut this method once again to add the parameter
             {
                 return false;
             }
