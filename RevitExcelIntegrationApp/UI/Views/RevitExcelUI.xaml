@@ -3,63 +3,80 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:RevitExcelIntegrationApp"
         mc:Ignorable="d"
         Height="200"
         Width="600"
         Title="Integration Between Revit and Excel"
-        Background="{DynamicResource PrimaryBackground}">
+        Background="{DynamicResource PrimaryBackground}" ResizeMode="NoResize">
     <Window.Resources>
         <ResourceDictionary Source="pack://application:,,,/RevitExcelIntegrationApp;component/Resources/Resources.xaml" />
     </Window.Resources>
-    <Grid Margin="10">
+    <Grid Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".9*"/>
+            <RowDefinition Height=".1*"/>
+        </Grid.RowDefinitions>
+        <Grid Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
-                <!--<RowDefinition />-->
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0"
-                  Margin="0 10">
+            <Grid Margin="3">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
                 <Label Grid.Row="0"
-                       Content="Load Element Prices From Excel Sheet" />
-                <StackPanel Grid.Row="1"
+                       Content="Select Category To Include Price At:" />
+                <StackPanel Grid.Row="1" Grid.RowSpan="2" Orientation="Horizontal" Margin="3">
+                    <TextBox Text="{Binding SearchInput , Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Width="150" Height="30" Margin="5"/>
+                    <ComboBox Grid.Row="1" Margin="5" Width="150" ItemsSource="{Binding ElementsCategories,Mode=TwoWay}" SelectedItem="{Binding SelectedCategory}"/>
+                    <Button Grid.Row="1"
+                    Height="30"
+                    Content="+"
+                    Width="50"
+                    Command="{Binding AddSharedParameterCommand}"/>
+                </StackPanel>
+            </Grid>
+            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical" Margin="3">
+
+                <Label  Content="Load Element Prices From Excel Sheet" />
+                <StackPanel 
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <TextBox Text="{Binding SelectedFilePath}"
                              Foreground="Black"
-                             Width="200"
+                             Width="200" Height="30"
                              Margin="5"/>
                     <Button Width="20"
                             Height="20"
                             Margin="5"
                             Content="..."
                             Command="{Binding LoadElementPriceFromExcelCommand}"/>
-                </StackPanel>
-            </Grid>
-            <Button Grid.Row="1"
-                    Width="200"
+                    <Button Grid.Row="1"
+                    Width="100"
                     Height="30"
-                    Margin="0 10"
+                    Margin="5"
                     Command="{Binding AddPricesToRevitElementsCommand}">
-                <StackPanel Orientation="Horizontal"
+                        <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
-                    <Image Source="pack://application:,,,/RevitExcelIntegrationApp;component/Images/AddPricesIcon.png" />
-                    <TextBlock Text="Add Prices to Revit Elemnts"
+                            <Image Source="pack://application:,,,/RevitExcelIntegrationApp;component/Images/AddPricesIcon.png" />
+                            <TextBlock  Text="Add Prices"
                                Margin="4" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </Button>
+            </StackPanel>
         </Grid>
-
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="100"/>
                 <RowDefinition  Height="20"/>
@@ -69,5 +86,6 @@
                    Height="100"
                    Source="pack://application:,,,/RevitExcelIntegrationApp;component/Images/Logo.png" />
         </Grid>
+        <Label Grid.Row="1" Content="{Binding PromptText,Mode=TwoWay}"/>
     </Grid>
 </Window>
