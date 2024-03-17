@@ -4,6 +4,7 @@
 		<UseWPF>true</UseWPF>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="Images\AddIcon.png" />
 	  <None Remove="Images\AddPricesIcon.png" />
 	  <None Remove="Images\Logo.png" />
 	</ItemGroup>
@@ -26,6 +27,9 @@
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>
+	  <Resource Include="Images\AddIcon.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Resource>
 	  <Resource Include="Images\AddPricesIcon.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Resource>

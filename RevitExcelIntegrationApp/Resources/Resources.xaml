@@ -4,5 +4,6 @@
         <ResourceDictionary Source="pack://application:,,,/RevitExcelIntegrationApp;component/Resources/ButtonStyles.xaml" />
         <ResourceDictionary Source="pack://application:,,,/RevitExcelIntegrationApp;component/Resources/TextBoxStyles.xaml" />
         <ResourceDictionary Source="pack://application:,,,/RevitExcelIntegrationApp;component/Resources/LabelStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/RevitExcelIntegrationApp;component/Resources/ComboBoxStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>
