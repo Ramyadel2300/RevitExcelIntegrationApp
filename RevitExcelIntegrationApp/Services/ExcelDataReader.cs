@@ -1,11 +1,7 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RevitExcelIntegrationApp.Services
 {
@@ -25,7 +21,8 @@ namespace RevitExcelIntegrationApp.Services
             var dataTableRows = datatable.Rows;
             for (int i = 1; i < totalSheetRows; i++)//To Skip Header
             {
-                SheetRows.Add((string)dataTableRows[i].ItemArray[0], (double)dataTableRows[i].ItemArray[1]);
+                if (dataTableRows[i].ItemArray[0].GetType() != typeof(DBNull)|| dataTableRows[i].ItemArray[1].GetType() != typeof(DBNull))
+                    SheetRows.Add((string)dataTableRows[i].ItemArray[0], (double)dataTableRows[i].ItemArray[1]);
             }
             return SheetRows;
         }
