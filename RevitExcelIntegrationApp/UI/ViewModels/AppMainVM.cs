@@ -15,7 +15,6 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
     {
         private UIDocument uidoc;
         private Document doc;
-        public event EventHandler CloseRequested;
 
         public DelegateCommand LoadElementPriceFromExcelCommand { get; set; }
         public DelegateCommand AddPricesToRevitElementsCommand { get; set; }

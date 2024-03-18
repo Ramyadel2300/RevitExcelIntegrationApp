@@ -58,9 +58,11 @@
 	<Target Name="ILRepacker_release" AfterTargets="CopyFilesToOutputDirectory" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 		<ILRepack
 			Parallel="true"
+			DebugInfo="true"
 			Internalize="true"
 			InputAssemblies="@(InputAssemblies)"
 			TargetKind="SameAsPrimaryAssembly"
-			OutputFile="$(OutputPath)\ILRepack\$(TargetFileName)"/>
+			OutputFile="$(OutputPath)\ILRepack\$(TargetFileName)"
+			LibraryPath="$(OutputPath)"/>
 	</Target>
 </Project>
