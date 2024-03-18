@@ -41,7 +41,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 ElementPricesInserter pricesInserter = new ElementPricesInserter(doc, dataReader);
                 var areInserted = pricesInserter.InsertPrices();
                 if (areInserted)
-                    PromptText = "Excel Prices Are Inserted Successfully";
+                    PromptText = "Excel Prices are Inserted Successfully";
             }
             catch (Exception ex)
             {
@@ -56,7 +56,10 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 dialog.Filter = "xlsx Excel File (*.xlsx)|*.xlsx|xls Excel File (*.xls)|*.xls|All files (*.*)|*.*";
                 dialog.ShowDialog();
                 SelectedFilePath = dialog.FileName;
-                PromptText = "Excel Prices Are Loaded Successfully";
+                if (!string.IsNullOrEmpty(SelectedFilePath))
+                    PromptText = "Excel Prices are Loaded Successfully";
+                else
+                    PromptText = "No File is Selected";
             }
             catch (Exception ex)
             {
@@ -70,7 +73,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 var selected = elementsCategories.Where(o => o.ToString() == SelectedCategory).FirstOrDefault();
                 var isLoaded = Utilities.LoadingSharedParamterFile(doc, selected);
                 if (isLoaded)
-                    PromptText = $"Price is Added To  {selected} Successfully";
+                    PromptText = $"Price is Added to {selected} Successfully";
             }
             catch (Exception ex)
             {
