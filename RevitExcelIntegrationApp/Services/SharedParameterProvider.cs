@@ -83,9 +83,9 @@ namespace RevitExcelIntegrationApp.Services
                 Definition Parameter = defGrp.Definitions.get_Item(parName);
                 //if there is no Parameter with this name, create a new Parameter with this name with the specific type gieb in the method parameter
                 if (Parameter == null)
-                {
-                    //ExternalDefinitionCreationOptions:An option class used for creating a new shared parameter definition, including options such as name, type, visibility, Guid description and modifiable flag.
-                    ExternalDefinitionCreationOptions NewlyCreatedParameter = new ExternalDefinitionCreationOptions(parName, parTypeId);
+                {               
+                   //ExternalDefinitionCreationOptions:An option class used for creating a new shared parameter definition, including options such as name, type, visibility, Guid description and modifiable flag.
+                   ExternalDefinitionCreationOptions NewlyCreatedParameter = new ExternalDefinitionCreationOptions(parName, parTypeId);
                     NewlyCreatedParameter.Visible = visible;
                     defGrp.Definitions.Create(NewlyCreatedParameter);//return the newly created paramter
                     Parameter = defGrp.Definitions.get_Item(parName);
@@ -165,7 +165,7 @@ namespace RevitExcelIntegrationApp.Services
             //if not set the paramter 
             if (!flag)
             {
-                bool isBinded = SetBinding(document, definitionGroup, ParaName, builtCat, SpecTypeId.String.Text);
+                bool isBinded = SetBinding(document, definitionGroup, ParaName, builtCat, SpecTypeId.Number);
             }
         }
     }
