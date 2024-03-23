@@ -51,6 +51,8 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         {
             try
             {
+                ScheduleGenerator scheduleGenerator= new ScheduleGenerator(uidoc,doc);
+                scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls);
                 OpenFileDialog dialog = new OpenFileDialog();
                 dialog.Filter = "xlsx Excel File (*.xlsx)|*.xlsx|xls Excel File (*.xls)|*.xls|All files (*.*)|*.*";
                 dialog.ShowDialog();
