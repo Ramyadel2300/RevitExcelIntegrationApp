@@ -29,15 +29,16 @@ namespace RevitExcelIntegrationApp.Services
                 ViewSchedule schedule = ViewSchedule.CreateSchedule(doc, categoryId);
                 schedule.Name = "Schedule";
                 IList<SchedulableField> schedylableFields = schedule.Definition.GetSchedulableFields().ToList();
+                ScheduleField scheduleField=default;
                 foreach (SchedulableField schedylableField in schedylableFields)
                 {
                     if (CheckField(schedylableField))
                     {
-                        ScheduleField scheduleField = schedule.Definition.AddField(schedylableField);
+                        scheduleField = schedule.Definition.AddField(schedylableField);
                     }
                 }
-                uidoc.ActiveView = schedule;
                 status = t.Commit();
+                uidoc.ActiveView = schedule;
             }
             return status;
         }
