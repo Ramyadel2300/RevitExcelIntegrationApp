@@ -7,6 +7,7 @@
 	  <None Remove="Images\AddIcon.png" />
 	  <None Remove="Images\AddPricesIcon.png" />
 	  <None Remove="Images\Logo.png" />
+	  <None Remove="Images\ScheduleIcon.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="ILRepack" Version="2.0.18" />
@@ -34,6 +35,9 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Images\Logo.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Images\ScheduleIcon.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Resource>
 	</ItemGroup>

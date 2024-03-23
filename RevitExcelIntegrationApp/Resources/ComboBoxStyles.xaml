@@ -14,7 +14,8 @@
                     Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
                     BorderThickness="{TemplateBinding BorderThickness}"
-                    SnapsToDevicePixels="true">
+                    SnapsToDevicePixels="true"
+                    CornerRadius="5">
                 <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                   SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
@@ -22,14 +23,12 @@
             <Border x:Name="FocusBorder"
                     BorderBrush="{DynamicResource ControlFocusBorder}"
                     BorderThickness="1"
-                    Visibility="Collapsed" />
+                    Visibility="Collapsed"
+                    CornerRadius="5"/>
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsEnabled"
                      Value="False">
-                <!--<Setter Property="TextElement.Foreground"
-                        TargetName="Bd"
-                        Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />-->
                 <Setter Property="Opacity"
                         Value="0.56" />
             </Trigger>
@@ -120,14 +119,16 @@
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
-                SnapsToDevicePixels="true">
+                SnapsToDevicePixels="true"
+                CornerRadius="5">
             <Border x:Name="splitBorder"
                     Width="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"
                     Margin="0"
                     HorizontalAlignment="Right"
                     BorderBrush="Transparent"
                     BorderThickness="1"
-                    SnapsToDevicePixels="true">
+                    SnapsToDevicePixels="true"
+                    CornerRadius="5">
                 <Path x:Name="arrow"
                       Margin="0"
                       HorizontalAlignment="Center"
@@ -199,7 +200,8 @@
                         MaxHeight="{TemplateBinding MaxDropDownHeight}"
                         Background="{DynamicResource ResourceKey=ContentBackground}"
                         BorderBrush="{DynamicResource ResourceKey=PrimaryBorder}"
-                        BorderThickness="1">
+                        BorderThickness="1"
+                        CornerRadius="5">
                     <ScrollViewer x:Name="DropDownScrollViewer">
                         <Grid x:Name="grid"
                               RenderOptions.ClearTypeHint="Enabled">
@@ -244,7 +246,8 @@
                     Grid.ColumnSpan="2"
                     BorderBrush="{DynamicResource ResourceKey=ControlFocusBorder}"
                     BorderThickness="1"
-                    Visibility="Collapsed" />
+                    Visibility="Collapsed"
+                    CornerRadius="5"/>
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="HasItems"
@@ -308,7 +311,8 @@
                         MaxHeight="{TemplateBinding MaxDropDownHeight}"
                         Background="{DynamicResource ResourceKey=ContentBackground}"
                         BorderBrush="{DynamicResource ResourceKey=PrimaryBorder}"
-                        BorderThickness="1">
+                        BorderThickness="1"
+                        CornerRadius="5">
                     <ScrollViewer x:Name="DropDownScrollViewer">
                         <Grid x:Name="grid"
                               RenderOptions.ClearTypeHint="Enabled">
@@ -338,7 +342,8 @@
                           Style="{StaticResource ComboBoxToggleButton}" />
             <Border x:Name="border"
                     Background="{TemplateBinding Background}"
-                    Margin="{TemplateBinding BorderThickness}">
+                    Margin="{TemplateBinding BorderThickness}"
+                    CornerRadius="5">
                 <TextBox x:Name="PART_EditableTextBox"
                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                          IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource Mode=TemplatedParent}}"
@@ -351,7 +356,8 @@
                     Grid.ColumnSpan="2"
                     BorderBrush="{DynamicResource ResourceKey=ControlFocusBorder}"
                     BorderThickness="1"
-                    Visibility="Collapsed" />
+                    Visibility="Collapsed" 
+                    CornerRadius="5"/>
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsEnabled"

@@ -19,6 +19,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         public DelegateCommand LoadElementPriceFromExcelCommand { get; set; }
         public DelegateCommand AddPricesToRevitElementsCommand { get; set; }
         public DelegateCommand AddSharedParameterCommand { get; set; }
+        public DelegateCommand GenerateScheduleCommand { get; set; }
 
         public AppMainVM(UIDocument uidoc, Document doc)
         {
@@ -28,7 +29,9 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             LoadElementPriceFromExcelCommand = new DelegateCommand(ExecuteLoadElementPriceFromExcel);
             AddPricesToRevitElementsCommand = new DelegateCommand(ExecuteAddPricesToRevitElements);
             AddSharedParameterCommand = new DelegateCommand(LoadSharedParameter);
+            GenerateScheduleCommand = new DelegateCommand(GenerateSchedule);
         }
+
         #region UI Commands
         private void ExecuteAddPricesToRevitElements(object obj)
         {
@@ -72,12 +75,18 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 var selected = elementsCategories.Where(o => o.ToString() == SelectedCategory).FirstOrDefault();
                 var isLoaded = Utilities.LoadingSharedParamterFile(doc, selected);
                 if (isLoaded)
+                {
                     PromptText = $"Price is Added to {selected} Successfully";
+                    SelectedCategories.Add(SelectedCategory);
+                }
             }
             catch (Exception ex)
             {
                 PromptText = ex.Message;
             }
+        }
+        private void GenerateSchedule(object obj)
+        {
         }
         #endregion
 
@@ -120,8 +129,28 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             get { return prompt; }
             set { SetProperty(ref prompt, value); }
         }
+        
+
+        public ObservableCollection<string> SelectedCategories { get; set; } = new ObservableCollection<string>();
+
+        private string selectedCategoryToSchedule;
+        public string SelectedCategoryToSchedule
+        {
+            get { return selectedCategoryToSchedule; }
+            set { SetProperty(ref selectedCategoryToSchedule, value); }
+        }
+        
+        public ObservableCollection<string> QuantityParameters { get; set; } = new ObservableCollection<string>() { "Length", "Area", "Volume", "Count" };
+
+        private string selectedQuantityParameter;
+        public string SelectedQuantityParameter
+        {
+            get { return selectedQuantityParameter; }
+            set { SetProperty(ref selectedQuantityParameter, value); }
+        }
 
         #endregion
+
         private void FilterCategories(string searchInput)
         {
             ObservableCollection<BuiltInCategory> elementsCategories = new ObservableCollection<BuiltInCategory>(Enum.GetValues(typeof(BuiltInCategory)) as BuiltInCategory[]);
