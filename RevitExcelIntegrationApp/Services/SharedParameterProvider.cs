@@ -67,6 +67,7 @@ namespace RevitExcelIntegrationApp.Services
                 return null;
             }
         }
+
         /// <summary>
         /// this method is made to retrieve the paramter from the shared paremter file or create a new one if there is not parameter with this name 
         /// </summary>
@@ -75,7 +76,7 @@ namespace RevitExcelIntegrationApp.Services
         /// <param name="parName">this paramter is used to get the paramter from the Definition group</param>
         /// <param name="visible">set this new pramarater to be cisible or not</param>
         /// <returns></returns>
-        public static Definition GetOrCreateSharedParamDefinition(DefinitionGroup defGrp, ForgeTypeId parTypeId, string parName, bool visible)
+        public static Definition GetOrCreateSharedParamDefinition(DefinitionGroup defGrp, ForgeTypeId parTypeId, string parName, bool visible=true)
         {
             try
             {
@@ -89,7 +90,27 @@ namespace RevitExcelIntegrationApp.Services
                     NewlyCreatedParameter.Visible = visible;
                     defGrp.Definitions.Create(NewlyCreatedParameter);//return the newly created paramter
                     Parameter = defGrp.Definitions.get_Item(parName);
+                    Parameter.GetGroupTypeId();
                 }
+                return Parameter;//return the existed parameter
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        public static Definition GetOrCreateSharedParamDefinition(BuiltInCategory category, string paraName, Document doc)
+        {
+            try
+            {
+                string categoryGroupName = category.ToString().Remove(0, 4) + "Cost Analysis Parameter";
+                var dllLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                var dllParentFolder = Directory.GetParent(dllLocation);
+                string sharedParamterFilePath = Path.Combine(dllParentFolder.FullName, "ELK Grove SharedParameters File.txt");
+                doc.Application.SharedParametersFilename = sharedParamterFilePath;
+                var definitionFile = doc.Application.OpenSharedParameterFile();
+                DefinitionGroup defGrp = definitionFile.Groups.get_Item(categoryGroupName);
+                Definition Parameter = defGrp.Definitions.get_Item(paraName);
                 return Parameter;//return the existed parameter
             }
             catch (Exception)

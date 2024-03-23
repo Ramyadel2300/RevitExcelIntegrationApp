@@ -45,8 +45,6 @@ namespace RevitExcelIntegrationApp.Services
             foreach (var element in elements)
             {
                 Parameter parameter = element.LookupParameter("Price");
-                if (parameter == null)
-                    continue;
                 if (!parameter.IsReadOnly)
                 {
                     parameter.Set(price.ToString());

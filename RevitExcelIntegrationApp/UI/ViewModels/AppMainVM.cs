@@ -88,7 +88,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         private void GenerateSchedule(object obj)
         {
             ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
-            scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls);
+            scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls,"Volume");
         }
         #endregion
 
