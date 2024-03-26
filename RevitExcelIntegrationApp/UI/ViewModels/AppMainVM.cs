@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Collections.ObjectModel;
 using RevitExcelIntegrationApp.UI.Services;
+using System.Windows;
 
 namespace RevitExcelIntegrationApp.UI.ViewModels
 {
@@ -30,6 +31,54 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             AddPricesToRevitElementsCommand = new DelegateCommand(ExecuteAddPricesToRevitElements);
             AddSharedParameterCommand = new DelegateCommand(LoadSharedParameter);
             GenerateScheduleCommand = new DelegateCommand(GenerateSchedule);
+            GetCategoriesWithPriceSharedParameter();
+        }
+
+        private void GetCategoriesWithPriceSharedParameter()
+        {
+            try
+            {
+                FilteredElementCollector myElements = new FilteredElementCollector(doc).WhereElementIsElementType();
+                List<BuiltInCategory> categories = myElements.Where(x => x.Category != null)
+                                                      .Select(x => x.Category)
+                                                      .GroupBy(x => x.Name).Select(x=> x.FirstOrDefault().BuiltInCategory)
+                                                      .ToList(); //Get BuiltInCategory for Categories in Document
+
+                using (Transaction t = new Transaction(doc, $"Try to get Categories with Price Parameter"))
+                {
+                    TransactionStatus status = new TransactionStatus();
+                    t.Start();
+                    foreach (BuiltInCategory category in categories)
+                    {
+                        List<Element> instancesOfCategory = new FilteredElementCollector(doc)
+                                                            .OfCategory(category).WhereElementIsNotElementType() //WhereElementIsNotElementType for instances parameetrs but WhereElementIsElementType for types 
+                                                            .Cast<Element>()
+                                                            .ToList(); //Get All Instances for each category
+                        //bool categroyAdded = false;
+                        //foreach (var instance in instancesOfCategory)
+                        //{
+                        //    foreach (Parameter parameetr in instance.Parameters)
+                        //    {
+                        //        if (parameetr?.Definition?.Name == "Price")
+                        //        {
+                        //            SelectedCategories.Add(category.ToString());
+                        //            categroyAdded = true;
+                        //            break;
+                        //        }
+                        //    }
+                        //    if (categroyAdded) break;
+                        //}
+                        
+                        if(instancesOfCategory.Any(i => i.Parameters.Cast<Parameter>().FirstOrDefault(p => p.Definition.Name == "Price") != null))
+                            SelectedCategories.Add(category.ToString());
+                    }
+                    status = t.Commit();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.StackTrace);
+            }
         }
 
         #region UI Commands
@@ -77,7 +126,9 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 if (isLoaded)
                 {
                     PromptText = $"Price is Added to {selected} Successfully";
-                    SelectedCategories.Add(SelectedCategory);
+
+                    if (!SelectedCategories.Contains(SelectedCategory))
+                        SelectedCategories.Add(SelectedCategory);
                 }
             }
             catch (Exception ex)
@@ -88,7 +139,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         private void GenerateSchedule(object obj)
         {
             ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
-            scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls,"Volume");
+            scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls, "Volume");
         }
         #endregion
 
@@ -131,7 +182,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             get { return prompt; }
             set { SetProperty(ref prompt, value); }
         }
-        
+
 
         public ObservableCollection<string> SelectedCategories { get; set; } = new ObservableCollection<string>();
 
@@ -141,7 +192,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             get { return selectedCategoryToSchedule; }
             set { SetProperty(ref selectedCategoryToSchedule, value); }
         }
-        
+
         public ObservableCollection<string> QuantityParameters { get; set; } = new ObservableCollection<string>() { "Length", "Area", "Volume", "Count" };
 
         private string selectedQuantityParameter;
