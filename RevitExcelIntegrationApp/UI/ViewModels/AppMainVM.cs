@@ -87,8 +87,15 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         }
         private void GenerateSchedule(object obj)
         {
-            ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
-            scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls,"Volume");
+            try
+            {
+                ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
+                scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls, "Volume");
+            }
+            catch (Exception ex)
+            {
+                PromptText = ex.Message;
+            }
         }
         #endregion
 
@@ -131,7 +138,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             get { return prompt; }
             set { SetProperty(ref prompt, value); }
         }
-        
+
 
         public ObservableCollection<string> SelectedCategories { get; set; } = new ObservableCollection<string>();
 
@@ -141,7 +148,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             get { return selectedCategoryToSchedule; }
             set { SetProperty(ref selectedCategoryToSchedule, value); }
         }
-        
+
         public ObservableCollection<string> QuantityParameters { get; set; } = new ObservableCollection<string>() { "Length", "Area", "Volume", "Count" };
 
         private string selectedQuantityParameter;

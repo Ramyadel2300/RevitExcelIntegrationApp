@@ -76,7 +76,7 @@ namespace RevitExcelIntegrationApp.Services
         /// <param name="parName">this paramter is used to get the paramter from the Definition group</param>
         /// <param name="visible">set this new pramarater to be cisible or not</param>
         /// <returns></returns>
-        public static Definition GetOrCreateSharedParamDefinition(DefinitionGroup defGrp, ForgeTypeId parTypeId, string parName, bool visible=true)
+        public static Definition GetOrCreateSharedParamDefinition(DefinitionGroup defGrp, ForgeTypeId parTypeId, string parName, bool visible)
         {
             try
             {
@@ -99,25 +99,6 @@ namespace RevitExcelIntegrationApp.Services
                 return null;
             }
         }
-        public static Definition GetOrCreateSharedParamDefinition(BuiltInCategory category, string paraName, Document doc)
-        {
-            try
-            {
-                string categoryGroupName = category.ToString().Remove(0, 4) + "Cost Analysis Parameter";
-                var dllLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                var dllParentFolder = Directory.GetParent(dllLocation);
-                string sharedParamterFilePath = Path.Combine(dllParentFolder.FullName, "ELK Grove SharedParameters File.txt");
-                doc.Application.SharedParametersFilename = sharedParamterFilePath;
-                var definitionFile = doc.Application.OpenSharedParameterFile();
-                DefinitionGroup defGrp = definitionFile.Groups.get_Item(categoryGroupName);
-                Definition Parameter = defGrp.Definitions.get_Item(paraName);
-                return Parameter;//return the existed parameter
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
         /// <summary>
         /// here we are binding a given value to be set as a Revit Shared Paramter this process is called Binding 
         /// </summary>
@@ -128,9 +109,9 @@ namespace RevitExcelIntegrationApp.Services
         /// <param name="paraType"></param>
         /// <param name="isParentGroupIFC"></param>
         /// <returns></returns>
-        public static bool SetBinding(Document document, DefinitionGroup myGroup, string paraName, BuiltInCategory category, ForgeTypeId parTypeId)
+        public static bool SetBinding(Document document, DefinitionGroup myGroup, string paraName, BuiltInCategory category, ForgeTypeId parTypeId, bool visible)
         {
-            Definition GetorCreateSharedParamDefinition = GetOrCreateSharedParamDefinition(myGroup, parTypeId, paraName, visible: true);//our method to retrieve the defintion
+            Definition GetorCreateSharedParamDefinition = GetOrCreateSharedParamDefinition(myGroup, parTypeId, paraName, visible);//our method to retrieve the defintion
                                                                                                                                         //if there is no parameter with the given data 
             if (GetorCreateSharedParamDefinition == null)//some how Revit needs to execut this method once again to add the parameter
             {
@@ -146,7 +127,7 @@ namespace RevitExcelIntegrationApp.Services
             return isBinded;
         }
         //this method is consisdered to be the gate or the main method to triger the loading of the shared paramter file 
-        public static void AddSharedParameters(Document document, BuiltInCategory builtCat, string paraGroupName, string path, string ParaName)
+        public static void AddSharedParameters(Document document, BuiltInCategory builtCat, string paraGroupName, string path, string ParaName, bool visible=true)
         {
             var app = document.Application;
             DefinitionFile sharedParamsFile = GetOrCreateSharedParamsFile(app, path);
@@ -186,7 +167,7 @@ namespace RevitExcelIntegrationApp.Services
             //if not set the paramter 
             if (!flag)
             {
-                bool isBinded = SetBinding(document, definitionGroup, ParaName, builtCat, SpecTypeId.Number);
+                bool isBinded = SetBinding(document, definitionGroup, ParaName, builtCat, SpecTypeId.Number,visible);
             }
         }
     }

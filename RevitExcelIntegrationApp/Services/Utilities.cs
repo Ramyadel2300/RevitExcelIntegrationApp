@@ -24,6 +24,7 @@ namespace RevitExcelIntegrationApp.Services
                 var dllParentFolder = Directory.GetParent(dllLocation);
                 string sharedParamterFilePath = Path.Combine(dllParentFolder.FullName, "ELK Grove SharedParameters File.txt");
                 SharedParameterProvider.AddSharedParameters(doc, newCategory, categoryGroupName, sharedParamterFilePath, "Price");
+                SharedParameterProvider.AddSharedParameters(doc, newCategory, categoryGroupName, sharedParamterFilePath, "Total Price",false);
                 transactionStatus = t.Commit();
             }
             if (transactionStatus == TransactionStatus.Committed)
