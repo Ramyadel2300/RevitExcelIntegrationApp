@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Autodesk.Revit.UI;
 using System.Linq;
+using RevitExcelIntegrationApp.Enums;
+using System;
 
 namespace RevitExcelIntegrationApp.Services
 {
@@ -18,17 +20,19 @@ namespace RevitExcelIntegrationApp.Services
         }
         public TransactionStatus GenerateCategorySchedule(BuiltInCategory category, string selectedParameter)
         {
+            QuantityParameter selectedQuantityParameter = (QuantityParameter)Enum.Parse(typeof(QuantityParameter), selectedParameter);
+
             TransactionStatus status = new TransactionStatus();
             BuiltInParameter builtInParameter = default;
-            switch (selectedParameter)
+            switch (selectedQuantityParameter)
             {
-                case "Length":
+                case QuantityParameter.Length:
                     builtInParameter = BuiltInParameter.CURVE_ELEM_LENGTH;
                     break;
-                case "Area":
+                case QuantityParameter.Area:
                     builtInParameter = BuiltInParameter.HOST_AREA_COMPUTED;
                     break;
-                case "Volume":
+                case QuantityParameter.Volume:
                     builtInParameter = BuiltInParameter.HOST_VOLUME_COMPUTED;
                     break;
             }
@@ -88,6 +92,8 @@ namespace RevitExcelIntegrationApp.Services
         }
         private void CalculateCategoryTotalPrice(BuiltInCategory category, string schulableParameterName)
         {
+            QuantityParameter selectedQuantityParameter = (QuantityParameter)Enum.Parse(typeof(QuantityParameter), schulableParameterName);
+
             using (SubTransaction st = new SubTransaction(doc))
             {
                 st.Start();
@@ -97,15 +103,15 @@ namespace RevitExcelIntegrationApp.Services
                     var totalPriceParameter = element.LookupParameter("Total Price");
                     var priceParameter = element.LookupParameter("Price").AsDouble();
                     Parameter schulableParameter = default;
-                    switch (schulableParameterName)
+                    switch (selectedQuantityParameter)
                     {
-                        case "Length":
+                        case QuantityParameter.Length:
                             schulableParameter = element.LookupParameter("Length");
                             break;
-                        case "Area":
+                        case QuantityParameter.Area:
                             schulableParameter = element.LookupParameter("Area");
                             break;
-                        case "Volume":
+                        case QuantityParameter.Volume:
                             schulableParameter = element.LookupParameter("Volume");
                             break;
                     }

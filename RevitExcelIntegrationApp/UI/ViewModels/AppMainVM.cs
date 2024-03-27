@@ -9,6 +9,7 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using RevitExcelIntegrationApp.UI.Services;
 using System.Windows;
+using RevitExcelIntegrationApp.Enums;
 
 namespace RevitExcelIntegrationApp.UI.ViewModels
 {
@@ -31,18 +32,24 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             AddPricesToRevitElementsCommand = new DelegateCommand(ExecuteAddPricesToRevitElements);
             AddSharedParameterCommand = new DelegateCommand(LoadSharedParameter);
             GenerateScheduleCommand = new DelegateCommand(GenerateSchedule);
+
+            elementsCategories = new ObservableCollection<BuiltInCategory>(GetCategoriesForCurrentDocument());
             GetCategoriesWithPriceSharedParameter();
+        }
+
+        private IEnumerable<BuiltInCategory> GetCategoriesForCurrentDocument()
+        {
+            FilteredElementCollector myElements = new FilteredElementCollector(doc).WhereElementIsElementType();
+            return myElements.Where(x => x.Category != null)
+                                                  .Select(x => x.Category)
+                                                  .GroupBy(x => x.Name).Select(x => x.FirstOrDefault().BuiltInCategory); //Get BuiltInCategory for Categories in Document
         }
 
         private void GetCategoriesWithPriceSharedParameter()
         {
             try
             {
-                FilteredElementCollector myElements = new FilteredElementCollector(doc).WhereElementIsElementType();
-                List<BuiltInCategory> categories = myElements.Where(x => x.Category != null)
-                                                      .Select(x => x.Category)
-                                                      .GroupBy(x => x.Name).Select(x=> x.FirstOrDefault().BuiltInCategory)
-                                                      .ToList(); //Get BuiltInCategory for Categories in Document
+                List<BuiltInCategory> categories = GetCategoriesForCurrentDocument().ToList();
 
                 using (Transaction t = new Transaction(doc, $"Try to get Categories with Price Parameter"))
                 {
@@ -141,7 +148,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             try
             {
                 ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
-                scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls, "Volume");
+                scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls, QuantityParameter.Volume.ToString());
             }
             catch (Exception ex)
             {
@@ -157,7 +164,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             get { return _selectedFilePath; }
             set { SetProperty(ref _selectedFilePath, value); }
         }
-        ObservableCollection<BuiltInCategory> elementsCategories = new ObservableCollection<BuiltInCategory>(Enum.GetValues(typeof(BuiltInCategory)) as BuiltInCategory[]);
+        ObservableCollection<BuiltInCategory> elementsCategories = new ObservableCollection<BuiltInCategory>();
         public ObservableCollection<BuiltInCategory> ElementsCategories
         {
             get { return elementsCategories; }
@@ -200,7 +207,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             set { SetProperty(ref selectedCategoryToSchedule, value); }
         }
 
-        public ObservableCollection<string> QuantityParameters { get; set; } = new ObservableCollection<string>() { "Length", "Area", "Volume", "Count" };
+        public ObservableCollection<QuantityParameter> QuantityParameters { get; set; } = new ObservableCollection<QuantityParameter>(Enum.GetValues(typeof(QuantityParameter)) as QuantityParameter[]);
 
         private string selectedQuantityParameter;
         public string SelectedQuantityParameter
@@ -213,14 +220,8 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
 
         private void FilterCategories(string searchInput)
         {
-            ObservableCollection<BuiltInCategory> elementsCategories = new ObservableCollection<BuiltInCategory>(Enum.GetValues(typeof(BuiltInCategory)) as BuiltInCategory[]);
             //Making ListBoxItems to reposnd to the real time impact in the UI
-            if (string.IsNullOrWhiteSpace(searchInput))
-            {
-                ElementsCategories = new ObservableCollection<BuiltInCategory>(elementsCategories.Distinct().ToList());
-                return;
-            }
-            else
+            if (!string.IsNullOrWhiteSpace(searchInput))
             {
                 List<BuiltInCategory> ComponentSearchResult = elementsCategories.Where(c => c.ToString().ToLower()
                                                                                     .Contains(SearchInput
