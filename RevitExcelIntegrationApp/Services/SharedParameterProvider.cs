@@ -67,6 +67,7 @@ namespace RevitExcelIntegrationApp.Services
                 return null;
             }
         }
+
         /// <summary>
         /// this method is made to retrieve the paramter from the shared paremter file or create a new one if there is not parameter with this name 
         /// </summary>
@@ -89,6 +90,7 @@ namespace RevitExcelIntegrationApp.Services
                     NewlyCreatedParameter.Visible = visible;
                     defGrp.Definitions.Create(NewlyCreatedParameter);//return the newly created paramter
                     Parameter = defGrp.Definitions.get_Item(parName);
+                    Parameter.GetGroupTypeId();
                 }
                 return Parameter;//return the existed parameter
             }
@@ -107,9 +109,9 @@ namespace RevitExcelIntegrationApp.Services
         /// <param name="paraType"></param>
         /// <param name="isParentGroupIFC"></param>
         /// <returns></returns>
-        public static bool SetBinding(Document document, DefinitionGroup myGroup, string paraName, BuiltInCategory category, ForgeTypeId parTypeId)
+        public static bool SetBinding(Document document, DefinitionGroup myGroup, string paraName, BuiltInCategory category, ForgeTypeId parTypeId, bool visible)
         {
-            Definition GetorCreateSharedParamDefinition = GetOrCreateSharedParamDefinition(myGroup, parTypeId, paraName, visible: true);//our method to retrieve the defintion
+            Definition GetorCreateSharedParamDefinition = GetOrCreateSharedParamDefinition(myGroup, parTypeId, paraName, visible);//our method to retrieve the defintion
                                                                                                                                         //if there is no parameter with the given data 
             if (GetorCreateSharedParamDefinition == null)//some how Revit needs to execut this method once again to add the parameter
             {
@@ -125,7 +127,7 @@ namespace RevitExcelIntegrationApp.Services
             return isBinded;
         }
         //this method is consisdered to be the gate or the main method to triger the loading of the shared paramter file 
-        public static void AddSharedParameters(Document document, BuiltInCategory builtCat, string paraGroupName, string path, string ParaName)
+        public static void AddSharedParameters(Document document, BuiltInCategory builtCat, string paraGroupName, string path, string ParaName, bool visible=true)
         {
             var app = document.Application;
             DefinitionFile sharedParamsFile = GetOrCreateSharedParamsFile(app, path);
@@ -165,7 +167,7 @@ namespace RevitExcelIntegrationApp.Services
             //if not set the paramter 
             if (!flag)
             {
-                bool isBinded = SetBinding(document, definitionGroup, ParaName, builtCat, SpecTypeId.Number);
+                bool isBinded = SetBinding(document, definitionGroup, ParaName, builtCat, SpecTypeId.Number,visible);
             }
         }
     }

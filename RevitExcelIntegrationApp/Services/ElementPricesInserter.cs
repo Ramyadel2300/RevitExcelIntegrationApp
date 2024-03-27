@@ -46,10 +46,10 @@ namespace RevitExcelIntegrationApp.Services
             {
                 Parameter parameter = element.LookupParameter("Price");
                 if (parameter == null)
-                    continue;
+                    break;
                 if (!parameter.IsReadOnly)
                 {
-                    parameter.Set(price.ToString());
+                    parameter.Set(price);
                 }
             }
         }
