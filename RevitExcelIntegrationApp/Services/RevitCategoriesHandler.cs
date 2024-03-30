@@ -1,20 +1,22 @@
 ﻿using Autodesk.Revit.DB;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 
 namespace RevitExcelIntegrationApp.Services
 {
-    internal class RevitCtegoriesHandler
+    public class RevitCategoriesHandler
     {
         private readonly Document doc;
         public IEnumerable<BuiltInCategory> DocumentCurrentCategories { get;}
-        public RevitCtegoriesHandler(Document doc)
+        public RevitCategoriesHandler(Document doc)
         {
             this.doc = doc;
             DocumentCurrentCategories = GetCategoriesForCurrentDocument();
         }
-        private IEnumerable<BuiltInCategory> GetCategoriesForCurrentDocument()
+        public IEnumerable<BuiltInCategory> GetCategoriesForCurrentDocument()
         {
             FilteredElementCollector myElements = new FilteredElementCollector(doc).WhereElementIsElementType();
             IEnumerable<BuiltInCategory>  documentCategory = myElements.Where(x => x.Category != null)
@@ -23,30 +25,40 @@ namespace RevitExcelIntegrationApp.Services
                              .Select(x => x.FirstOrDefault().BuiltInCategory); //Get BuiltInCategory for Categories in Document
             return documentCategory;
         }
-        public ObservableCollection<string> GetCategoriesWithPriceSharedParameter(ObservableCollection<string> SelectedCategories)
+
+        public ObservableCollection<BuiltInCategory> GetCategoriesWithPriceSharedParameter(IEnumerable<BuiltInCategory> elementsCategories)
         {
-            foreach (BuiltInCategory category in DocumentCurrentCategories)
+            var sharedParametersFilePath = Utilities.GetSharedParameterFilePath(doc);
+            ObservableCollection<BuiltInCategory> selectedCategories = new ObservableCollection<BuiltInCategory>();
+            if (File.Exists(sharedParametersFilePath))
             {
-                var Categoreis = new FilteredElementCollector(doc).OfCategory(category).WhereElementIsElementType();
-                bool categroyAdded = false;
-                foreach (var instance in Categoreis)
+                using (FileStream fileStream = File.Open(sharedParametersFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (BufferedStream bufferedStream = new BufferedStream(fileStream))
+                using (StreamReader reader = new StreamReader(bufferedStream))
                 {
-                    foreach (Parameter parameetr in instance.Parameters)
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        if (parameetr?.Definition?.Name == "Price")
+                        if (line.StartsWith("GROUP"))
                         {
-                            SelectedCategories.Add(category.ToString());
-                            categroyAdded = true;
-                            break;
+                            var categoryPart = line.Split('\t')[2];
+                            int constantPartIndex = categoryPart.IndexOf("Cost Analysis Parameter", StringComparison.OrdinalIgnoreCase);
+
+                            if (constantPartIndex != -1)
+                            {
+                                string builtInCatgeoryName = categoryPart.Substring(0, constantPartIndex);
+                                var builtInCategory = elementsCategories.FirstOrDefault(o => o.ToString() == builtInCatgeoryName);
+                                if(!selectedCategories.Contains(builtInCategory))
+                                    selectedCategories.Add(builtInCategory);
+                            }
                         }
                     }
-                    if (categroyAdded) break;
                 }
-                //if (Categoreis.Any(i => i.Parameters.Cast<Parameter>().FirstOrDefault(p => p.Definition != null && p.Definition.Name == "Price") != null))
-                //    SelectedCategories.Add(category.ToString());
             }
-            return SelectedCategories;
+            return selectedCategories;
+
         }
+
         public ObservableCollection<BuiltInCategory> FilterCategories(string searchInput)
         {
             if (!string.IsNullOrWhiteSpace(searchInput))

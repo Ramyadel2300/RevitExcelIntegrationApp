@@ -24,6 +24,7 @@ namespace RevitExcelIntegrationApp.Services
                 SharedParameterProvider.AddSharedParameters(doc, newCategory, categoryGroupName, sharedParamterFilePath, "Price");
                 SharedParameterProvider.AddSharedParameters(doc, newCategory, categoryGroupName, sharedParamterFilePath, "Total Price",false);
                 transactionStatus = t.Commit();
+                doc.Save();
             }
             if (transactionStatus == TransactionStatus.Committed)
                 return true;
