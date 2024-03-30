@@ -18,12 +18,11 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
     {
         private UIDocument uidoc;
         private Document doc;
-
+        RevitCtegoriesHandler ctegoriesHandler;
         public DelegateCommand LoadElementPriceFromExcelCommand { get; set; }
         public DelegateCommand AddPricesToRevitElementsCommand { get; set; }
         public DelegateCommand AddSharedParameterCommand { get; set; }
         public DelegateCommand GenerateScheduleCommand { get; set; }
-
         public AppMainVM(UIDocument uidoc, Document doc)
         {
             this.uidoc = uidoc;
@@ -75,6 +74,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                     }
                 }
             }
+
         }
 
         #region UI Commands
@@ -137,7 +137,8 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             try
             {
                 ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
-                scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls, QuantityParameter.Volume.ToString());
+                var selected = QuantityParameters.Where(o => o.ToString() == SelectedQuantityParameter).FirstOrDefault();
+                scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls, selected.ToString());
             }
             catch (Exception ex)
             {
@@ -153,7 +154,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             get { return _selectedFilePath; }
             set { SetProperty(ref _selectedFilePath, value); }
         }
-        ObservableCollection<BuiltInCategory> elementsCategories = new ObservableCollection<BuiltInCategory>();
+        ObservableCollection<BuiltInCategory> elementsCategories;
         public ObservableCollection<BuiltInCategory> ElementsCategories
         {
             get { return elementsCategories; }
@@ -175,7 +176,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             set
             {
                 if (SetProperty(ref searchInput, value))
-                    FilterCategories(value);
+                    ElementsCategories = ctegoriesHandler.FilterCategories(value);
             }
         }
         private string prompt;
@@ -207,18 +208,5 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
 
         #endregion
 
-        private void FilterCategories(string searchInput)
-        {
-            //Making ListBoxItems to reposnd to the real time impact in the UI
-            if (!string.IsNullOrWhiteSpace(searchInput))
-            {
-                List<BuiltInCategory> ComponentSearchResult = elementsCategories.Where(c => c.ToString().ToLower()
-                                                                                    .Contains(SearchInput
-                                                                                    .ToLower())).Select(c => c)
-                                                                                                .Distinct()
-                                                                                                .ToList();
-                ElementsCategories = new ObservableCollection<BuiltInCategory>(ComponentSearchResult);
-            }
-        }
     }
 }
