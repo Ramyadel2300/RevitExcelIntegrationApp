@@ -100,7 +100,9 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
                 var selectedParameter = QuantityParameters.Where(o => o.ToString() == SelectedQuantityParameter).FirstOrDefault();
                 var selectedCategoryToSchedule = SelectedCategories.Where(o => o.ToString() == SelectedCategoryToSchedule).FirstOrDefault();
-                scheduleGenerator.GenerateCategorySchedule(selectedCategoryToSchedule, selectedParameter.ToString());
+                if(string.IsNullOrEmpty(scheduleName))
+                    throw new Exception("Please, enter value for schedule name!")
+                scheduleGenerator.GenerateCategorySchedule(selectedCategoryToSchedule, selectedParameter.ToString(), scheduleName);
             }
             catch (Exception ex)
             {
@@ -166,6 +168,13 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         {
             get { return selectedQuantityParameter; }
             set { SetProperty(ref selectedQuantityParameter, value); }
+        }
+        
+        private string scheduleName;
+        public string ScheduleName
+        {
+            get { return scheduleName; }
+            set { SetProperty(ref scheduleName, value); }
         }
 
         #endregion
