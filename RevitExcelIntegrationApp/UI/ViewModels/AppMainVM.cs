@@ -97,7 +97,8 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             try
             {
                 ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
-                scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls, QuantityParameter.Volume.ToString());
+                var selected = QuantityParameters.Where(o => o.ToString() == SelectedQuantityParameter).FirstOrDefault();
+                scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls, selected.ToString());
             }
             catch (Exception ex)
             {

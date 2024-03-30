@@ -96,30 +96,25 @@ namespace RevitExcelIntegrationApp.Services
             {
                 st.Start();
                 var scheduleTableValues = GetScheduleData(schedule);
-                var elements = Utilities.GetAllStructuralGraphicalElements(doc, category);
+                var elements = Utilities.GetAllStructuralGraphicalElements(doc, category).Where(x=>x.);
                 int count = 0;
                 foreach (var element in elements)
                 {
                     List<string> currentRow = scheduleTableValues[count];
-                    string rowName = currentRow[0];
-                    Family elementfamily = element.Document.GetElement(element.GetTypeId()) as Family;
-                    if (rowName.Contains(elementfamily.Name))
+                    double priceValue = 0;
+                    if (!string.IsNullOrEmpty(currentRow[2]))
+                        priceValue = double.Parse(currentRow[2]);
+                    double quantityValue = 0;
+                    double scheduleTextValue = ExtractNumericValue(currentRow[1]);
+                    if (scheduleTextValue != -1)
+                        quantityValue = scheduleTextValue;
+                    double totalcost = quantityValue * priceValue;
+                    var totalPriceParameter = element.LookupParameter("Total Price");
+                    if (!totalPriceParameter.IsReadOnly)
                     {
-                        double priceValue = 0;
-                        if (!string.IsNullOrEmpty(currentRow[2]))
-                            priceValue = double.Parse(currentRow[2]);
-                        double quantityValue = 0;
-                        double scheduleTextValue = ExtractNumericValue(currentRow[1]);
-                        if (scheduleTextValue != -1)
-                            quantityValue = scheduleTextValue;
-                        double totalcost = quantityValue * priceValue;
-                        var totalPriceParameter = element.LookupParameter("Total Price");
-                        if (!totalPriceParameter.IsReadOnly)
-                        {
-                            totalPriceParameter.Set(totalcost);
-                        }
+                        totalPriceParameter.Set(totalcost);
                     }
-                    count++;
+                    //count++;
                 }
                 st.Commit();
             }
@@ -172,6 +167,7 @@ namespace RevitExcelIntegrationApp.Services
                 }
                 scheduleData.RemoveAt(0);
                 scheduleData.RemoveAt(scheduleData.FindIndex(x => string.IsNullOrEmpty(x[0])));
+                scheduleData.RemoveAt(scheduleData.FindIndex(x => string.IsNullOrEmpty(x[1])));
             }
             return scheduleData;
         }
