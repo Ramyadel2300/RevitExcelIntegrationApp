@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using RevitExcelIntegrationApp.UI.Services;
 using System.Windows;
 using RevitExcelIntegrationApp.Enums;
+using System.IO;
 
 namespace RevitExcelIntegrationApp.UI.ViewModels
 {
@@ -32,9 +33,48 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             AddSharedParameterCommand = new DelegateCommand(LoadSharedParameter);
             GenerateScheduleCommand = new DelegateCommand(GenerateSchedule);
 
-            ctegoriesHandler = new RevitCtegoriesHandler(doc);
-            elementsCategories = new ObservableCollection<BuiltInCategory>(ctegoriesHandler.DocumentCurrentCategories);
-            SelectedCategories = ctegoriesHandler.GetCategoriesWithPriceSharedParameter(SelectedCategories);
+            elementsCategories = new ObservableCollection<BuiltInCategory>(GetCategoriesForCurrentDocument());
+            GetCategoriesWithPriceSharedParameter();
+        }
+
+        private IEnumerable<BuiltInCategory> GetCategoriesForCurrentDocument()
+        {
+            FilteredElementCollector myElements = new FilteredElementCollector(doc).WhereElementIsElementType();
+            return myElements.Where(x => x.Category != null)
+                                                  .Select(x => x.Category)
+                                                  .GroupBy(x => x.Name).Select(x => x.FirstOrDefault().BuiltInCategory); //Get BuiltInCategory for Categories in Document
+        }
+
+        private void GetCategoriesWithPriceSharedParameter()
+        {
+            var sharedParametersFilePath = Utilities.GetSharedParameterFilePath(doc);
+            if (File.Exists(sharedParametersFilePath))
+            {
+                using (FileStream fileStream = File.Open(sharedParametersFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (BufferedStream bufferedStream = new BufferedStream(fileStream))
+                using (StreamReader reader = new StreamReader(bufferedStream))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.StartsWith("GROUP"))
+                        {
+                            var categoryPart = line.Split('\t')[2];
+                            int constantPartIndex = categoryPart.IndexOf("Cost Analysis Parameter", StringComparison.OrdinalIgnoreCase);
+
+                            if (constantPartIndex != -1)
+                            {
+                                string builtInCatgeoryName = categoryPart.Substring(0, constantPartIndex);
+                                var builtInCategory = elementsCategories.FirstOrDefault(o => o.ToString() == builtInCatgeoryName);
+                                if (!SelectedCategories.Contains(builtInCategory))
+                                    SelectedCategories.Add(builtInCategory);
+
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
         #region UI Commands
@@ -83,8 +123,8 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 {
                     PromptText = $"Price is Added to {selected} Successfully";
 
-                    if (!SelectedCategories.Contains(SelectedCategory))
-                        SelectedCategories.Add(SelectedCategory);
+                    if (!SelectedCategories.Contains(selected))
+                        SelectedCategories.Add(selected);
                 }
             }
             catch (Exception ex)
@@ -148,7 +188,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         }
 
 
-        public ObservableCollection<string> SelectedCategories { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<BuiltInCategory> SelectedCategories { get; set; } = new ObservableCollection<BuiltInCategory>();
 
         private string selectedCategoryToSchedule;
         public string SelectedCategoryToSchedule
