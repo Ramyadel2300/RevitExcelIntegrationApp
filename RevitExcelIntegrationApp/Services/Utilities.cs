@@ -15,14 +15,12 @@ namespace RevitExcelIntegrationApp.Services
         }
         public static bool LoadingSharedParamterFile(Document doc, BuiltInCategory newCategory)
         {
-            string categoryGroupName = newCategory.ToString().Remove(0, 4) + "Cost Analysis Parameter";
+            string categoryGroupName = newCategory.ToString()+ "Cost Analysis Parameter";
             TransactionStatus transactionStatus;
             using (Transaction t = new Transaction(doc, $"Load Shared Parameter For {newCategory}"))
             {
                 t.Start();
-                var dllLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                var dllParentFolder = Directory.GetParent(dllLocation);
-                string sharedParamterFilePath = Path.Combine(dllParentFolder.FullName, "ELK Grove SharedParameters File.txt");
+                string sharedParamterFilePath = GetSharedParameterFilePath(doc);
                 SharedParameterProvider.AddSharedParameters(doc, newCategory, categoryGroupName, sharedParamterFilePath, "Price");
                 SharedParameterProvider.AddSharedParameters(doc, newCategory, categoryGroupName, sharedParamterFilePath, "Total Price",false);
                 transactionStatus = t.Commit();
@@ -31,6 +29,12 @@ namespace RevitExcelIntegrationApp.Services
                 return true;
             else
                 return false;
+        }
+        public static string GetSharedParameterFilePath(Document doc)
+        {
+            var dllLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var dllParentFolder = Directory.GetParent(dllLocation);
+            return Path.Combine(dllParentFolder.FullName, $"{doc.Title}-SharedParameters-File.txt");
         }
     }
 }

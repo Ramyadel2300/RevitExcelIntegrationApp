@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using RevitExcelIntegrationApp.UI.Services;
 using System.Windows;
 using RevitExcelIntegrationApp.Enums;
+using System.IO;
 
 namespace RevitExcelIntegrationApp.UI.ViewModels
 {
@@ -47,44 +48,32 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
 
         private void GetCategoriesWithPriceSharedParameter()
         {
-            try
+            var sharedParametersFilePath = Utilities.GetSharedParameterFilePath(doc);
+            if (File.Exists(sharedParametersFilePath))
             {
-                List<BuiltInCategory> categories = GetCategoriesForCurrentDocument().ToList();
-
-                using (Transaction t = new Transaction(doc, $"Try to get Categories with Price Parameter"))
+                using (FileStream fileStream = File.Open(sharedParametersFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (BufferedStream bufferedStream = new BufferedStream(fileStream))
+                using (StreamReader reader = new StreamReader(bufferedStream))
                 {
-                    TransactionStatus status = new TransactionStatus();
-                    t.Start();
-                    foreach (BuiltInCategory category in categories)
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        List<Element> instancesOfCategory = new FilteredElementCollector(doc)
-                                                            .OfCategory(category).WhereElementIsNotElementType() //WhereElementIsNotElementType for instances parameetrs but WhereElementIsElementType for types 
-                                                            .Cast<Element>()
-                                                            .ToList(); //Get All Instances for each category
-                        //bool categroyAdded = false;
-                        //foreach (var instance in instancesOfCategory)
-                        //{
-                        //    foreach (Parameter parameetr in instance.Parameters)
-                        //    {
-                        //        if (parameetr?.Definition?.Name == "Price")
-                        //        {
-                        //            SelectedCategories.Add(category.ToString());
-                        //            categroyAdded = true;
-                        //            break;
-                        //        }
-                        //    }
-                        //    if (categroyAdded) break;
-                        //}
-                        
-                        if(instancesOfCategory.Any(i => i.Parameters.Cast<Parameter>().FirstOrDefault(p => p.Definition.Name == "Price") != null))
-                            SelectedCategories.Add(category.ToString());
+                        if (line.StartsWith("GROUP"))
+                        {
+                            var categoryPart = line.Split('\t')[2];
+                            int constantPartIndex = categoryPart.IndexOf("Cost Analysis Parameter", StringComparison.OrdinalIgnoreCase);
+
+                            if (constantPartIndex != -1)
+                            {
+                                string builtInCatgeoryName = categoryPart.Substring(0, constantPartIndex);
+                                var builtInCategory = elementsCategories.FirstOrDefault(o => o.ToString() == builtInCatgeoryName);
+                                if (!SelectedCategories.Contains(builtInCategory))
+                                    SelectedCategories.Add(builtInCategory);
+
+                            }
+                        }
                     }
-                    status = t.Commit();
                 }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.StackTrace);
             }
         }
 
@@ -134,8 +123,8 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 {
                     PromptText = $"Price is Added to {selected} Successfully";
 
-                    if (!SelectedCategories.Contains(SelectedCategory))
-                        SelectedCategories.Add(SelectedCategory);
+                    if (!SelectedCategories.Contains(selected))
+                        SelectedCategories.Add(selected);
                 }
             }
             catch (Exception ex)
@@ -198,7 +187,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         }
 
 
-        public ObservableCollection<string> SelectedCategories { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<BuiltInCategory> SelectedCategories { get; set; } = new ObservableCollection<BuiltInCategory>();
 
         private string selectedCategoryToSchedule;
         public string SelectedCategoryToSchedule
