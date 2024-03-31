@@ -47,16 +47,7 @@ namespace RevitExcelIntegrationApp.Services
                 {
                     if (CheckField(schedylableField))
                     {
-                        ScheduleField scheduleField=schedule.Definition.AddField(schedylableField);
-                        // schedule's group sorting (to collect family and type field)
-                        if (schedylableField.ParameterId == new ElementId(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM))
-                        {
-
-                            // create group sorting (family and type)
-                            FamilyTypeSorting = new ScheduleSortGroupField(scheduleField.FieldId);
-                            // add schedule's group sorting field
-                            schedule.Definition.AddSortGroupField(FamilyTypeSorting);
-                        }
+                        ScheduleField scheduleField=schedule.Definition.AddField(schedylableField);                        
                     }
                 }
                 CalculateCategoryTotalPrice(category, selectedParameter);
@@ -66,7 +57,6 @@ namespace RevitExcelIntegrationApp.Services
                 var SharedParametertotalPriceField = schedylableFields.FirstOrDefault(x => x.ParameterId == totalPriceGUID);
                 schedule.Definition.AddField(SharedParameterPriceField);
                 schedule.Definition.AddField(SharedParametertotalPriceField);
-                schedule.Definition.SetSortGroupField(0, FamilyTypeSorting);
                 status = t.Commit();
                 uidoc.ActiveView = schedule;
             }
