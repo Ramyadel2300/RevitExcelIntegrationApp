@@ -17,6 +17,7 @@ namespace RevitExcelIntegrationApp.Services
         }
         public bool InsertPrices()
         {
+            TransactionStatus transactionStatus;
             var excelValues = elementPrices.ExcelReading();
             var categoiresPrices = excelValues.Select(v =>
             {
@@ -24,7 +25,6 @@ namespace RevitExcelIntegrationApp.Services
                 Enum.TryParse("OST_" + v.Key.Trim(), out category);
                 return new { category, v.Value };
             }).ToList();
-            TransactionStatus transactionStatus;
             using (Transaction transaction = new Transaction(doc, "Inserting Price Into Elements"))
             {
                 transaction.Start();
@@ -44,7 +44,7 @@ namespace RevitExcelIntegrationApp.Services
         {
             foreach (var element in elements)
             {
-                Parameter parameter = element.LookupParameter("Price");
+                Parameter parameter = element.LookupParameter(Constants.Price);
                 if (parameter == null)
                     break;
                 if (!parameter.IsReadOnly)

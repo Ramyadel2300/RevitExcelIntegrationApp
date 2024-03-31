@@ -18,8 +18,8 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.9*" />
-            <RowDefinition Height=".2*" />
+            <RowDefinition Height="0.85*" />
+            <RowDefinition Height=".15*" />
         </Grid.RowDefinitions>
         <Grid Margin="5">
             <Grid.RowDefinitions>
@@ -70,10 +70,10 @@
                     <TextBox Text="{Binding SelectedFilePath}"
                              Foreground="Black"
                              Height="auto"
-                             Width="220"
+                             Width="300"
                              Margin="5"
                              IsReadOnly="True" />
-                    <Button Width="25"
+                    <Button Width="45"
                             Height="25"
                             Margin="5"
                             Content="..."
