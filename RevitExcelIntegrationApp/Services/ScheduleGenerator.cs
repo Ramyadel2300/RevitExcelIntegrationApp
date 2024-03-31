@@ -17,7 +17,7 @@ namespace RevitExcelIntegrationApp.Services
             this.uidoc = uidoc;
             this.doc = doc;
         }
-        public TransactionStatus GenerateCategorySchedule(BuiltInCategory category, string selectedParameter)
+        public TransactionStatus GenerateCategorySchedule(BuiltInCategory category, string selectedParameter, string scheduleName)
         {
             TransactionStatus status = new TransactionStatus();
             BiParams.Add(GettingBuiltInParameterBasedOnSelectedParameter(selectedParameter));
@@ -26,8 +26,8 @@ namespace RevitExcelIntegrationApp.Services
                 t.Start("Generating Schedule");
                 ElementId categoryId = new ElementId(category);
                 ViewSchedule schedule = ViewSchedule.CreateSchedule(doc, categoryId);
-                schedule.Name = "Schedule1222";
-                IList<SchedulableField> schedylableFields = schedule.Definition.GetSchedulableFields();
+                schedule.Name = scheduleName;
+                IList<SchedulableField> schedylableFields = schedule.Definition.GetSchedulableFields().ToList();
                 foreach (SchedulableField schedylableField in schedylableFields)
                     if (CheckField(schedylableField))
                         schedule.Definition.AddField(schedylableField);

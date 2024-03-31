@@ -18,7 +18,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
     {
         private UIDocument uidoc;
         private Document doc;
-        RevitCtegoriesHandler ctegoriesHandler;
+        public RevitCategoriesHandler categoriesHandler { get; set; }
         public DelegateCommand LoadElementPriceFromExcelCommand { get; set; }
         public DelegateCommand AddPricesToRevitElementsCommand { get; set; }
         public DelegateCommand AddSharedParameterCommand { get; set; }
@@ -33,48 +33,9 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             AddSharedParameterCommand = new DelegateCommand(LoadSharedParameter);
             GenerateScheduleCommand = new DelegateCommand(GenerateSchedule);
 
-            ctegoriesHandler = new RevitCtegoriesHandler(doc);
-            elementsCategories = new ObservableCollection<BuiltInCategory>(GetCategoriesForCurrentDocument());
-            GetCategoriesWithPriceSharedParameter();
-        }
-
-        private IEnumerable<BuiltInCategory> GetCategoriesForCurrentDocument()
-        {
-            FilteredElementCollector myElements = new FilteredElementCollector(doc).WhereElementIsElementType();
-            return myElements.Where(x => x.Category != null)
-                                                  .Select(x => x.Category)
-                                                  .GroupBy(x => x.Name).Select(x => x.FirstOrDefault().BuiltInCategory); //Get BuiltInCategory for Categories in Document
-        }
-        private void GetCategoriesWithPriceSharedParameter()
-        {
-            var sharedParametersFilePath = Utilities.GetSharedParameterFilePath(doc);
-            if (File.Exists(sharedParametersFilePath))
-            {
-                using (FileStream fileStream = File.Open(sharedParametersFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (BufferedStream bufferedStream = new BufferedStream(fileStream))
-                using (StreamReader reader = new StreamReader(bufferedStream))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        if (line.StartsWith("GROUP"))
-                        {
-                            var categoryPart = line.Split('\t')[2];
-                            int constantPartIndex = categoryPart.IndexOf("Cost Analysis Parameter", StringComparison.OrdinalIgnoreCase);
-
-                            if (constantPartIndex != -1)
-                            {
-                                string builtInCatgeoryName = categoryPart.Substring(0, constantPartIndex);
-                                var builtInCategory = elementsCategories.FirstOrDefault(o => o.ToString() == builtInCatgeoryName);
-                                if (!SelectedCategories.Contains(builtInCategory))
-                                    SelectedCategories.Add(builtInCategory);
-
-                            }
-                        }
-                    }
-                }
-            }
-
+            categoriesHandler = new RevitCategoriesHandler(doc);
+            elementsCategories = new ObservableCollection<BuiltInCategory>(categoriesHandler.GetCategoriesForCurrentDocument());
+            SelectedCategories = categoriesHandler.GetCategoriesWithPriceSharedParameter(elementsCategories);
         }
 
         #region UI Commands
@@ -137,8 +98,11 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             try
             {
                 ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
-                var selected = QuantityParameters.Where(o => o.ToString() == SelectedQuantityParameter).FirstOrDefault();
-                scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls, selected.ToString());
+                var selectedParameter = QuantityParameters.Where(o => o.ToString() == SelectedQuantityParameter).FirstOrDefault();
+                var selectedCategoryToSchedule = SelectedCategories.Where(o => o.ToString() == SelectedCategoryToSchedule).FirstOrDefault();
+                if(string.IsNullOrEmpty(scheduleName))
+                    throw new Exception("Please, enter value for schedule name!")
+                scheduleGenerator.GenerateCategorySchedule(selectedCategoryToSchedule, selectedParameter.ToString(), scheduleName);
             }
             catch (Exception ex)
             {
@@ -176,7 +140,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             set
             {
                 if (SetProperty(ref searchInput, value))
-                    ElementsCategories = ctegoriesHandler.FilterCategories(value);
+                    ElementsCategories = categoriesHandler.FilterCategories(value);
             }
         }
         private string prompt;
@@ -204,6 +168,13 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         {
             get { return selectedQuantityParameter; }
             set { SetProperty(ref selectedQuantityParameter, value); }
+        }
+        
+        private string scheduleName;
+        public string ScheduleName
+        {
+            get { return scheduleName; }
+            set { SetProperty(ref scheduleName, value); }
         }
 
         #endregion
