@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace RevitExcelIntegrationApp.Enums
 {
     public enum QuantityParameter
     {
-        [Display(Name ="Count")]
-        Count = 1,
         [Display(Name ="Length")]
-        Length = 2,
+        Length = 1,
         [Display(Name ="Area")]
-        Area = 3,
+        Area = 2,
         [Display(Name ="Volume")]
-        Volume = 4
+        Volume = 3
     }
 }

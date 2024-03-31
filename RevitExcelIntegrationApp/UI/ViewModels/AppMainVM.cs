@@ -33,6 +33,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             AddSharedParameterCommand = new DelegateCommand(LoadSharedParameter);
             GenerateScheduleCommand = new DelegateCommand(GenerateSchedule);
 
+            ctegoriesHandler = new RevitCtegoriesHandler(doc);
             elementsCategories = new ObservableCollection<BuiltInCategory>(GetCategoriesForCurrentDocument());
             GetCategoriesWithPriceSharedParameter();
         }
@@ -44,7 +45,6 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                                                   .Select(x => x.Category)
                                                   .GroupBy(x => x.Name).Select(x => x.FirstOrDefault().BuiltInCategory); //Get BuiltInCategory for Categories in Document
         }
-
         private void GetCategoriesWithPriceSharedParameter()
         {
             var sharedParametersFilePath = Utilities.GetSharedParameterFilePath(doc);

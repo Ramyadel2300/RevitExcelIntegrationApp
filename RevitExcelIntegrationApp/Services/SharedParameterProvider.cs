@@ -88,6 +88,9 @@ namespace RevitExcelIntegrationApp.Services
                    //ExternalDefinitionCreationOptions:An option class used for creating a new shared parameter definition, including options such as name, type, visibility, Guid description and modifiable flag.
                    ExternalDefinitionCreationOptions NewlyCreatedParameter = new ExternalDefinitionCreationOptions(parName, parTypeId);
                     NewlyCreatedParameter.Visible = visible;
+                    NewlyCreatedParameter.UserModifiable = true;
+                    NewlyCreatedParameter.HideWhenNoValue = false;
+                    NewlyCreatedParameter.Description = "The Price Parameter which is used when Revit-Excel Application is Executed";
                     defGrp.Definitions.Create(NewlyCreatedParameter);//return the newly created paramter
                     Parameter = defGrp.Definitions.get_Item(parName);
                     Parameter.GetGroupTypeId();

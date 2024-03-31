@@ -23,30 +23,6 @@ namespace RevitExcelIntegrationApp.Services
                              .Select(x => x.FirstOrDefault().BuiltInCategory); //Get BuiltInCategory for Categories in Document
             return documentCategory;
         }
-        public ObservableCollection<string> GetCategoriesWithPriceSharedParameter(ObservableCollection<string> SelectedCategories)
-        {
-            foreach (BuiltInCategory category in DocumentCurrentCategories)
-            {
-                var Categoreis = new FilteredElementCollector(doc).OfCategory(category).WhereElementIsElementType();
-                bool categroyAdded = false;
-                foreach (var instance in Categoreis)
-                {
-                    foreach (Parameter parameetr in instance.Parameters)
-                    {
-                        if (parameetr?.Definition?.Name == "Price")
-                        {
-                            SelectedCategories.Add(category.ToString());
-                            categroyAdded = true;
-                            break;
-                        }
-                    }
-                    if (categroyAdded) break;
-                }
-                //if (Categoreis.Any(i => i.Parameters.Cast<Parameter>().FirstOrDefault(p => p.Definition != null && p.Definition.Name == "Price") != null))
-                //    SelectedCategories.Add(category.ToString());
-            }
-            return SelectedCategories;
-        }
         public ObservableCollection<BuiltInCategory> FilterCategories(string searchInput)
         {
             if (!string.IsNullOrWhiteSpace(searchInput))
@@ -61,5 +37,6 @@ namespace RevitExcelIntegrationApp.Services
             }
             return null;
         }
+
     }
 }
