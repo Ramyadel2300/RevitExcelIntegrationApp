@@ -9,8 +9,7 @@ namespace RevitExcelIntegrationApp.Services
 {
     internal class ScheduleGenerator
     {
-        // built in parameters / fields to add in schedule
-        List<BuiltInParameter> BiParams = new List<BuiltInParameter> { BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM };
+        private readonly List<BuiltInParameter> BiParams = new List<BuiltInParameter> { BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM };
         private readonly UIDocument uidoc;
         private readonly Document doc;
         public ScheduleGenerator(UIDocument uidoc, Document doc)
@@ -20,8 +19,35 @@ namespace RevitExcelIntegrationApp.Services
         }
         public TransactionStatus GenerateCategorySchedule(BuiltInCategory category, string selectedParameter)
         {
-            QuantityParameter selectedQuantityParameter = (QuantityParameter)Enum.Parse(typeof(QuantityParameter), selectedParameter);
             TransactionStatus status = new TransactionStatus();
+            BiParams.Add(GettingBuiltInParameterBasedOnSelectedParameter(selectedParameter));
+            using (Transaction t = new Transaction(doc))
+            {
+                t.Start("Generating Schedule");
+                ElementId categoryId = new ElementId(category);
+                ViewSchedule schedule = ViewSchedule.CreateSchedule(doc, categoryId);
+                schedule.Name = "Schedule1222";
+                IList<SchedulableField> schedylableFields = schedule.Definition.GetSchedulableFields();
+                foreach (SchedulableField schedylableField in schedylableFields)
+                    if (CheckField(schedylableField))
+                        schedule.Definition.AddField(schedylableField);
+                CalculateCategoryTotalPrice(category, selectedParameter);
+                
+                var priceGUID = GetParameterID(category, Constants.Price);
+                var SharedParameterPriceField = schedylableFields.FirstOrDefault(x => x.ParameterId == priceGUID);
+                var totalPriceGUID = GetParameterID(category, Constants.TotalPrice);
+                var SharedParametertotalPriceField = schedylableFields.FirstOrDefault(x => x.ParameterId == totalPriceGUID);
+                schedule.Definition.AddField(SharedParameterPriceField);
+                schedule.Definition.AddField(SharedParametertotalPriceField);
+                status = t.Commit();
+                uidoc.ActiveView = schedule;
+            }
+            return status;
+        }
+
+        private static BuiltInParameter GettingBuiltInParameterBasedOnSelectedParameter(string selectedParameter)
+        {
+            QuantityParameter selectedQuantityParameter = (QuantityParameter)Enum.Parse(typeof(QuantityParameter), selectedParameter);
             BuiltInParameter builtInParameter = default;
             switch (selectedQuantityParameter)
             {
@@ -35,51 +61,14 @@ namespace RevitExcelIntegrationApp.Services
                     builtInParameter = BuiltInParameter.HOST_VOLUME_COMPUTED;
                     break;
             }
-            BiParams.Add(builtInParameter);
-            using (Transaction t = new Transaction(doc))
-            {
-                t.Start("Generating Schedule");
-                ElementId categoryId = new ElementId(category);
-                ViewSchedule schedule = ViewSchedule.CreateSchedule(doc, categoryId);
-                schedule.Name = "Schedule1222";
-                IList<SchedulableField> schedylableFields = schedule.Definition.GetSchedulableFields();
-                ScheduleSortGroupField FamilyTypeSorting = null;
-                foreach (SchedulableField schedylableField in schedylableFields)
-                {
-                    if (CheckField(schedylableField))
-                    {
-                        ScheduleField scheduleField=schedule.Definition.AddField(schedylableField);
-                        // schedule's group sorting (to collect family and type field)
-                        if (schedylableField.ParameterId == new ElementId(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM))
-                        {
-
-                            // create group sorting (family and type)
-                            FamilyTypeSorting = new ScheduleSortGroupField(scheduleField.FieldId);
-                            // add schedule's group sorting field
-                            schedule.Definition.AddSortGroupField(FamilyTypeSorting);
-                        }
-                    }
-                }
-                CalculateCategoryTotalPrice(category, selectedParameter);
-                var priceGUID = GetParameterID(category, "Price");
-                var SharedParameterPriceField = schedylableFields.FirstOrDefault(x => x.ParameterId == priceGUID);
-                var totalPriceGUID = GetParameterID(category, "Total Price");
-                var SharedParametertotalPriceField = schedylableFields.FirstOrDefault(x => x.ParameterId == totalPriceGUID);
-                schedule.Definition.AddField(SharedParameterPriceField);
-                schedule.Definition.AddField(SharedParametertotalPriceField);
-                schedule.Definition.SetSortGroupField(0, FamilyTypeSorting);
-                status = t.Commit();
-                uidoc.ActiveView = schedule;
-            }
-            return status;
+            return builtInParameter;
         }
+
         private bool CheckField(SchedulableField schedulableField)
         {
             foreach (BuiltInParameter bip in BiParams)
-            {
                 if (new ElementId(bip) == schedulableField.ParameterId)
                     return true;
-            }
             return false;
         }
         public ElementId GetParameterID(BuiltInCategory categoryNam, string parameterName)
@@ -107,8 +96,8 @@ namespace RevitExcelIntegrationApp.Services
                 var elements = Utilities.GetAllStructuralGraphicalElements(doc, category);
                 foreach (var element in elements)
                 {
-                    var totalPriceParameter = element.LookupParameter("Total Price");
-                    var priceParameter = element.LookupParameter("Price").AsDouble();
+                    var totalPriceParameter = element.LookupParameter(Constants.TotalPrice);
+                    var priceParameter = element.LookupParameter(Constants.Price).AsDouble();
                     Parameter schulableParameter = default;
                     switch (selectedQuantityParameter)
                     {
