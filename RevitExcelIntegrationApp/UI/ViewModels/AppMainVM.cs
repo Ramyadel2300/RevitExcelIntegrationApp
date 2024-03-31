@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using RevitExcelIntegrationApp.UI.Services;
 using System.Windows;
 using RevitExcelIntegrationApp.Enums;
+using System.IO;
 
 namespace RevitExcelIntegrationApp.UI.ViewModels
 {
@@ -17,12 +18,11 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
     {
         private UIDocument uidoc;
         private Document doc;
-
+        public RevitCategoriesHandler categoriesHandler { get; set; }
         public DelegateCommand LoadElementPriceFromExcelCommand { get; set; }
         public DelegateCommand AddPricesToRevitElementsCommand { get; set; }
         public DelegateCommand AddSharedParameterCommand { get; set; }
         public DelegateCommand GenerateScheduleCommand { get; set; }
-
         public AppMainVM(UIDocument uidoc, Document doc)
         {
             this.uidoc = uidoc;
@@ -33,59 +33,9 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             AddSharedParameterCommand = new DelegateCommand(LoadSharedParameter);
             GenerateScheduleCommand = new DelegateCommand(GenerateSchedule);
 
-            elementsCategories = new ObservableCollection<BuiltInCategory>(GetCategoriesForCurrentDocument());
-            GetCategoriesWithPriceSharedParameter();
-        }
-
-        private IEnumerable<BuiltInCategory> GetCategoriesForCurrentDocument()
-        {
-            FilteredElementCollector myElements = new FilteredElementCollector(doc).WhereElementIsElementType();
-            return myElements.Where(x => x.Category != null)
-                                                  .Select(x => x.Category)
-                                                  .GroupBy(x => x.Name).Select(x => x.FirstOrDefault().BuiltInCategory); //Get BuiltInCategory for Categories in Document
-        }
-
-        private void GetCategoriesWithPriceSharedParameter()
-        {
-            try
-            {
-                List<BuiltInCategory> categories = GetCategoriesForCurrentDocument().ToList();
-
-                using (Transaction t = new Transaction(doc, $"Try to get Categories with Price Parameter"))
-                {
-                    TransactionStatus status = new TransactionStatus();
-                    t.Start();
-                    foreach (BuiltInCategory category in categories)
-                    {
-                        List<Element> instancesOfCategory = new FilteredElementCollector(doc)
-                                                            .OfCategory(category).WhereElementIsNotElementType() //WhereElementIsNotElementType for instances parameetrs but WhereElementIsElementType for types 
-                                                            .Cast<Element>()
-                                                            .ToList(); //Get All Instances for each category
-                        //bool categroyAdded = false;
-                        //foreach (var instance in instancesOfCategory)
-                        //{
-                        //    foreach (Parameter parameetr in instance.Parameters)
-                        //    {
-                        //        if (parameetr?.Definition?.Name == "Price")
-                        //        {
-                        //            SelectedCategories.Add(category.ToString());
-                        //            categroyAdded = true;
-                        //            break;
-                        //        }
-                        //    }
-                        //    if (categroyAdded) break;
-                        //}
-                        
-                        if(instancesOfCategory.Any(i => i.Parameters.Cast<Parameter>().FirstOrDefault(p => p.Definition.Name == "Price") != null))
-                            SelectedCategories.Add(category.ToString());
-                    }
-                    status = t.Commit();
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.StackTrace);
-            }
+            categoriesHandler = new RevitCategoriesHandler(doc);
+            elementsCategories = new ObservableCollection<BuiltInCategory>(categoriesHandler.GetCategoriesForCurrentDocument());
+            SelectedCategories = categoriesHandler.GetCategoriesWithPriceSharedParameter(elementsCategories);
         }
 
         #region UI Commands
@@ -134,8 +84,8 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 {
                     PromptText = $"Price is Added to {selected} Successfully";
 
-                    if (!SelectedCategories.Contains(SelectedCategory))
-                        SelectedCategories.Add(SelectedCategory);
+                    if (!SelectedCategories.Contains(selected))
+                        SelectedCategories.Add(selected);
                 }
             }
             catch (Exception ex)
@@ -148,7 +98,11 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             try
             {
                 ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
-                scheduleGenerator.GenerateCategorySchedule(BuiltInCategory.OST_Walls, QuantityParameter.Volume.ToString());
+                var selectedParameter = QuantityParameters.Where(o => o.ToString() == SelectedQuantityParameter).FirstOrDefault();
+                var selectedCategoryToSchedule = SelectedCategories.Where(o => o.ToString() == SelectedCategoryToSchedule).FirstOrDefault();
+                if(string.IsNullOrEmpty(scheduleName))
+                    throw new Exception("Please, enter value for schedule name!")
+                scheduleGenerator.GenerateCategorySchedule(selectedCategoryToSchedule, selectedParameter.ToString(), scheduleName);
             }
             catch (Exception ex)
             {
@@ -164,7 +118,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             get { return _selectedFilePath; }
             set { SetProperty(ref _selectedFilePath, value); }
         }
-        ObservableCollection<BuiltInCategory> elementsCategories = new ObservableCollection<BuiltInCategory>();
+        ObservableCollection<BuiltInCategory> elementsCategories;
         public ObservableCollection<BuiltInCategory> ElementsCategories
         {
             get { return elementsCategories; }
@@ -186,7 +140,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             set
             {
                 if (SetProperty(ref searchInput, value))
-                    FilterCategories(value);
+                    ElementsCategories = categoriesHandler.FilterCategories(value);
             }
         }
         private string prompt;
@@ -198,7 +152,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         }
 
 
-        public ObservableCollection<string> SelectedCategories { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<BuiltInCategory> SelectedCategories { get; set; } = new ObservableCollection<BuiltInCategory>();
 
         private string selectedCategoryToSchedule;
         public string SelectedCategoryToSchedule
@@ -215,21 +169,15 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
             get { return selectedQuantityParameter; }
             set { SetProperty(ref selectedQuantityParameter, value); }
         }
+        
+        private string scheduleName;
+        public string ScheduleName
+        {
+            get { return scheduleName; }
+            set { SetProperty(ref scheduleName, value); }
+        }
 
         #endregion
 
-        private void FilterCategories(string searchInput)
-        {
-            //Making ListBoxItems to reposnd to the real time impact in the UI
-            if (!string.IsNullOrWhiteSpace(searchInput))
-            {
-                List<BuiltInCategory> ComponentSearchResult = elementsCategories.Where(c => c.ToString().ToLower()
-                                                                                    .Contains(SearchInput
-                                                                                    .ToLower())).Select(c => c)
-                                                                                                .Distinct()
-                                                                                                .ToList();
-                ElementsCategories = new ObservableCollection<BuiltInCategory>(ComponentSearchResult);
-            }
-        }
     }
 }

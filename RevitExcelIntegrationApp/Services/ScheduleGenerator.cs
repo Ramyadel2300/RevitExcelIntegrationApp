@@ -18,10 +18,9 @@ namespace RevitExcelIntegrationApp.Services
             this.uidoc = uidoc;
             this.doc = doc;
         }
-        public TransactionStatus GenerateCategorySchedule(BuiltInCategory category, string selectedParameter)
+        public TransactionStatus GenerateCategorySchedule(BuiltInCategory category, string selectedParameter, string scheduleName)
         {
             QuantityParameter selectedQuantityParameter = (QuantityParameter)Enum.Parse(typeof(QuantityParameter), selectedParameter);
-
             TransactionStatus status = new TransactionStatus();
             BuiltInParameter builtInParameter = default;
             switch (selectedQuantityParameter)
@@ -42,12 +41,14 @@ namespace RevitExcelIntegrationApp.Services
                 t.Start("Generating Schedule");
                 ElementId categoryId = new ElementId(category);
                 ViewSchedule schedule = ViewSchedule.CreateSchedule(doc, categoryId);
-                schedule.Name = "Schedule1";
+                schedule.Name = scheduleName;
                 IList<SchedulableField> schedylableFields = schedule.Definition.GetSchedulableFields().ToList();
                 foreach (SchedulableField schedylableField in schedylableFields)
                 {
                     if (CheckField(schedylableField))
-                        schedule.Definition.AddField(schedylableField);
+                    {
+                        ScheduleField scheduleField=schedule.Definition.AddField(schedylableField);                        
+                    }
                 }
                 CalculateCategoryTotalPrice(category, selectedParameter);
                 var priceGUID = GetParameterID(category, "Price");
@@ -56,11 +57,6 @@ namespace RevitExcelIntegrationApp.Services
                 var SharedParametertotalPriceField = schedylableFields.FirstOrDefault(x => x.ParameterId == totalPriceGUID);
                 schedule.Definition.AddField(SharedParameterPriceField);
                 schedule.Definition.AddField(SharedParametertotalPriceField);
-                if (selectedParameter == "Count")
-                {
-                    var SharedParameterCountField = schedylableFields.FirstOrDefault(x => x.FieldType == ScheduleFieldType.Count);
-                    schedule.Definition.AddField(SharedParameterCountField);
-                }
                 status = t.Commit();
                 uidoc.ActiveView = schedule;
             }

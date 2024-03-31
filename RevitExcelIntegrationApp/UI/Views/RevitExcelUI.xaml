@@ -45,7 +45,7 @@
                     <TextBox Text="{Binding SearchInput , Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                              Width="180"
                              Height="30"
-                             Margin="5"/>
+                             Margin="5" />
                     <ComboBox Margin="5"
                               Width="230"
                               ItemsSource="{Binding ElementsCategories,Mode=TwoWay}"
@@ -58,7 +58,7 @@
                     </Button>
                 </StackPanel>
             </Grid>
-            
+
             <!--Load Element Prices From Excel Sheet-->
             <StackPanel Grid.Row="1"
                         Orientation="Vertical"
@@ -99,26 +99,34 @@
                         Margin="3">
 
                 <Label  Content="Generate Schedules" />
-                <StackPanel Orientation="Horizontal"
+                <StackPanel Orientation="Vertical"
                             VerticalAlignment="Center">
-                    <ComboBox Margin="5"
-                              Width="200"
-                              ItemsSource="{Binding SelectedCategories,Mode=TwoWay}"
-                              SelectedItem="{Binding SelectedCategoryToSchedule}" />
-                    <ComboBox Margin="5"
-                              Width="110"
-                              ItemsSource="{Binding QuantityParameters,Mode=TwoWay}"
-                              SelectedItem="{Binding SelectedQuantityParameter}" />
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <ComboBox Margin="5"
+                                  Width="200"
+                                  ItemsSource="{Binding SelectedCategories,Mode=TwoWay}"
+                                  SelectedItem="{Binding SelectedCategoryToSchedule}" />
+                        <ComboBox Margin="5"
+                                  Width="110"
+                                  ItemsSource="{Binding QuantityParameters,Mode=TwoWay}"
+                                  SelectedItem="{Binding SelectedQuantityParameter}" />
+                        <TextBox Text="{Binding ScheduleName}"
+                                 Foreground="Black"
+                                 Height="auto"
+                                 Width="140"
+                                 Margin="5" />
+                    </StackPanel>
                     <Button Grid.Row="1"
-                            Width="auto"
+                            Width="135"
                             Height="30"
                             Margin="5"
                             Padding="5 0"
                             Command="{Binding GenerateScheduleCommand}">
                         <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center">
-                            <Image Source="pack://application:,,,/RevitExcelIntegrationApp;component/Images/ScheduleIcon.png" 
-                                   Height="20"/>
+                            <Image Source="pack://application:,,,/RevitExcelIntegrationApp;component/Images/ScheduleIcon.png"
+                                   Height="20" />
                             <TextBlock  Text="Generate Schedule"
                                         Margin="4" />
                         </StackPanel>
@@ -127,12 +135,13 @@
             </StackPanel>
 
         </Grid>
-        
+
         <!--Icon Side-->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="100" />
-                <RowDefinition  Height="20" />
+                <RowDefinition  Height="40" />
+                <RowDefinition  Height="40" />
             </Grid.RowDefinitions>
             <Image Grid.Row="0"
                    Width="100"
