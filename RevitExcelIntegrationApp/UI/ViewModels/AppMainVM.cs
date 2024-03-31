@@ -51,6 +51,10 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 if (areInserted)
                     PromptText = "Excel Prices are Inserted Successfully";
             }
+            catch (Autodesk.Revit.Exceptions.InvalidOperationException)
+            {
+                PromptText = "Failed Operation: Save this new Revit Model First.";
+            }
             catch (Exception ex)
             {
                 PromptText = ex.Message;
@@ -88,6 +92,10 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                         SelectedCategories.Add(selected);
                 }
             }
+            catch (Autodesk.Revit.Exceptions.InvalidOperationException)
+            {
+                PromptText = "Failed Operation: Save this new Revit Model First.";
+            }
             catch (Exception ex)
             {
                 PromptText = ex.Message;
@@ -100,9 +108,13 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 ScheduleGenerator scheduleGenerator = new ScheduleGenerator(uidoc, doc);
                 var selectedParameter = QuantityParameters.Where(o => o.ToString() == SelectedQuantityParameter).FirstOrDefault();
                 var selectedCategoryToSchedule = SelectedCategories.Where(o => o.ToString() == SelectedCategoryToSchedule).FirstOrDefault();
-                if(string.IsNullOrEmpty(scheduleName))
-                    throw new Exception("Please, enter value for schedule name!")
+                if (string.IsNullOrEmpty(scheduleName))
+                    throw new Exception("Please, enter value for schedule name!");
                 scheduleGenerator.GenerateCategorySchedule(selectedCategoryToSchedule, selectedParameter.ToString(), scheduleName);
+            }
+            catch (Autodesk.Revit.Exceptions.ArgumentException) 
+            {
+                PromptText = "schedule name allready exist, please change this name.";
             }
             catch (Exception ex)
             {

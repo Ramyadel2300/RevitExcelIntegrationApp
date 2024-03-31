@@ -1,7 +1,6 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using RevitExcelIntegrationApp.Services;
 
 namespace RevitExcelIntegrationApp.RevitHandlers
 {
@@ -12,11 +11,19 @@ namespace RevitExcelIntegrationApp.RevitHandlers
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIDocument uidoc = commandData.Application.ActiveUIDocument;
-            Document doc = uidoc.Document;
-            RevitExcelUI Window = new RevitExcelUI(uidoc, doc);
-            Window.ShowDialog();
-            return 0;
+            try
+            {
+                UIDocument uidoc = commandData.Application.ActiveUIDocument;
+                Document doc = uidoc.Document;
+                RevitExcelUI Window = new RevitExcelUI(uidoc, doc);
+                Window.ShowDialog();
+                doc.Save();//saving all perfromed changes
+                return 0;
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
         }
     }
 }
