@@ -17,11 +17,11 @@ namespace RevitExcelIntegrationApp.Services
             this.uidoc = uidoc;
             this.doc = doc;
         }
-        public TransactionStatus GenerateCategorySchedule(BuiltInCategory category, string selectedParameter, string scheduleName)
+        public bool GenerateCategorySchedule(BuiltInCategory category, string selectedParameter, string scheduleName)
         {
+            TransactionStatus transactionStatus = new TransactionStatus();
             try
             {
-                TransactionStatus status = new TransactionStatus();
                 BiParams.Add(GettingBuiltInParameterBasedOnSelectedParameter(selectedParameter));
                 using (Transaction t = new Transaction(doc))
                 {
@@ -40,15 +40,18 @@ namespace RevitExcelIntegrationApp.Services
                     var SharedParametertotalPriceField = schedylableFields.FirstOrDefault(x => x.ParameterId == totalPriceGUID);
                     schedule.Definition.AddField(SharedParameterPriceField);
                     schedule.Definition.AddField(SharedParametertotalPriceField);
-                    status = t.Commit();
+                    transactionStatus = t.Commit();
                     uidoc.ActiveView = schedule;
                 }
-                return status;
             }
             catch (Exception)
             {
                 throw;
             }
+            if (transactionStatus == TransactionStatus.Committed)
+                return true;
+            else
+                return false;
         }
 
         private static BuiltInParameter GettingBuiltInParameterBasedOnSelectedParameter(string selectedParameter)
