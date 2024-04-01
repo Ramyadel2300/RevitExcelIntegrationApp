@@ -3,14 +3,11 @@ using Autodesk.Revit.UI;
 using Microsoft.Win32;
 using RevitExcelIntegrationApp.Command;
 using RevitExcelIntegrationApp.Services;
-using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Collections.ObjectModel;
 using RevitExcelIntegrationApp.UI.Services;
-using System.Windows;
 using RevitExcelIntegrationApp.Enums;
-using System.IO;
 
 namespace RevitExcelIntegrationApp.UI.ViewModels
 {
@@ -27,7 +24,6 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         {
             this.uidoc = uidoc;
             this.doc = doc;
-            SelectedFilePath = "Selected File Path...";
             LoadElementPriceFromExcelCommand = new DelegateCommand(ExecuteLoadElementPriceFromExcel);
             AddPricesToRevitElementsCommand = new DelegateCommand(ExecuteAddPricesToRevitElements);
             AddSharedParameterCommand = new DelegateCommand(LoadSharedParameter);
@@ -70,8 +66,11 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 SelectedFilePath = dialog.FileName;
                 if (!string.IsNullOrEmpty(SelectedFilePath))
                     PromptText = "Excel Prices are Loaded Successfully";
-                else
+                else 
+                {
                     PromptText = "No File is Selected";
+                    SelectedFilePath= "Selected File Path...";
+                }
             }
             catch (Exception ex)
             {
@@ -110,8 +109,10 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
                 var selectedCategoryToSchedule = SelectedCategories.Where(o => o.ToString() == SelectedCategoryToSchedule).FirstOrDefault();
                 if (string.IsNullOrEmpty(scheduleName))
                     throw new Exception("Please, enter value for schedule name!");
-                scheduleGenerator.GenerateCategorySchedule(selectedCategoryToSchedule, selectedParameter.ToString(), scheduleName);
-            }
+                bool isScheduleGenertaed=scheduleGenerator.GenerateCategorySchedule(selectedCategoryToSchedule, selectedParameter.ToString(), scheduleName);
+                if (isScheduleGenertaed)
+                    PromptText = $"A {selectedParameter.ToString()} schedule is generated Successfully to selected category {selectedCategoryToSchedule.ToString()}";
+                }
             catch (Autodesk.Revit.Exceptions.ArgumentException) 
             {
                 PromptText = "schedule name allready exist, please change this name.";
@@ -124,7 +125,7 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         #endregion
 
         #region UI Pindeing Properties
-        private string _selectedFilePath;
+        private string _selectedFilePath = "Selected File Path...";
         public string SelectedFilePath
         {
             get { return _selectedFilePath; }
@@ -133,7 +134,12 @@ namespace RevitExcelIntegrationApp.UI.ViewModels
         ObservableCollection<BuiltInCategory> elementsCategories;
         public ObservableCollection<BuiltInCategory> ElementsCategories
         {
-            get { return elementsCategories; }
+            get 
+            {
+                if(string.IsNullOrEmpty(SearchInput))
+                    elementsCategories = new ObservableCollection<BuiltInCategory>(categoriesHandler.GetCategoriesForCurrentDocument());
+                return elementsCategories;
+            }
             set { SetProperty(ref elementsCategories, value); }
 
         }
