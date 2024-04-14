@@ -144,9 +144,7 @@
                 <RowDefinition  Height="40" />
             </Grid.RowDefinitions>
             <Image Grid.Row="0"
-                   Width="100"
-                   Height="100"
-                   Source="pack://application:,,,/RevitExcelIntegrationApp;component/Images/Logo.png" />
+                   Source="pack://application:,,,/RevitExcelIntegrationApp;component/Images/Logo.png" Margin="1,20,10,33" Grid.RowSpan="3" />
         </Grid>
         <Label Grid.Row="2"
                Content="{Binding PromptText,Mode=TwoWay}"
